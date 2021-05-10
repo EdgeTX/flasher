@@ -1,5 +1,6 @@
-# edgetx-flasher
-
+# EdgeTX Flasher
+The new alternative to OpenTX Companion for updating radio firmware and optimizing backups.
+<br>
 ## Project setup
 ```
 npm install
