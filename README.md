@@ -11,9 +11,9 @@ npm install
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Create executables for production
 ```
-npm run build
+npm run electron:build
 ```
 
 ### Lints and fixes files
