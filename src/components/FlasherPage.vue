@@ -97,13 +97,12 @@
         hide-overlay
         persistent
         width="300"
-        class="pt-2"
       >
         <v-card
           color="primary"
           dark
         >
-          <v-card-text>
+          <v-card-text class="pt-2">
             Loading firmware...
             <v-progress-linear
               indeterminate
