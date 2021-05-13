@@ -3,7 +3,7 @@ const AdmZip = require('adm-zip');
 
 // Repo Definitions....
 var defaultRepo = {
-    owner: 'coderelectronics',
+    owner: 'EdgeTX',
     repo: 'edgetx',
     authKey: `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`
 }
