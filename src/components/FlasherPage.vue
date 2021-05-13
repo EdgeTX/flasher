@@ -118,7 +118,7 @@
 
 <script>
 // eslint-disable-next-line no-unused-vars
-import {connectDFU, downloadDFU} from '../support/dfu-util/dfu-util.js'
+//import {connectDFU, downloadDFU} from '../support/dfu-util/dfu-util.js'
 // eslint-disable-next-line no-unused-vars
 const fwbranch = require("../support/fw-branch.js");
 
@@ -168,10 +168,6 @@ export default {
 
     async flashFw() {
       var self = this;
-      console.log("--- Debug ---");
-      console.log(this.currtr);
-      console.log(this.currfw);
-      console.log("- end debug -");
 
       var fwbin = await fwbranch.downloadArtifact(this.currtr, self.currfw, fwbranch.defaultRepo);
 
