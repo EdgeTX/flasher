@@ -7,6 +7,15 @@
         permanent
       >
         <v-list dense>
+          <v-list-item link to="/welcome">
+            <v-list-item-action>
+              <v-icon>mdi-help-box</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>About</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
           <v-list-item link to="/flash">
             <v-list-item-action>
               <v-icon>mdi-code-array</v-icon>
@@ -55,7 +64,7 @@
 
 <script>
 export default {
-  name: 'EdgeTX Flasher',
+  name: 'EdgeTX-Flasher',
 
   components: {
   },

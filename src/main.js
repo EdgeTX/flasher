@@ -5,15 +5,18 @@ import vuetify from './plugins/vuetify'
 import store from "./store";
 import App from './App.vue'
 import FlasherPage from './components/FlasherPage.vue'
+import WelcomePage from './components/WelcomePage.vue'
 import BackupPage from './components/BackupPage.vue'
 import SettingsPage from './components/SettingsPage.vue'
 
 const router = new VueRouter({
   mode: 'history',
   routes: [
-      { path: '/flash', component: FlasherPage },
-      { path: '/backup', component: BackupPage },
+      { path: '/welcome',  component: WelcomePage },
+      { path: '/flash',    component: FlasherPage },
+      { path: '/backup',   component: BackupPage },
       { path: '/settings', component: SettingsPage },
+      { path: '*', redirect: '/welcome' }
   ]
 });
 
@@ -29,11 +32,7 @@ new Vue({
   props: {
     source: String,
   },
-
-  data: () => ({
-    drawer: null,
-  }),
-
+  
   created () {
     this.$vuetify.theme.dark = store.getters.getOptions.themeSwitch;
   },

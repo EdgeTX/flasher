@@ -3,30 +3,59 @@
 
       <v-container>
         <div>
-          <v-sheet elevation="6" class="rounded-lg">
-            <v-tabs class="rounded">
-              <v-tabs-slider color="blue"></v-tabs-slider>
+          <v-select
+            :items="fwversions"
+            v-model="currfw"
+            item-text="name"
+            item-value="id"
+            label="Firmware Version"
+            class="rounded"
+            solo
+            @change="updateContent"
+          >
+            <template slot="selection" slot-scope="data">
+              {{ data.item.name }} {{ data.item.id }}
+            </template>
+            <template slot="item" slot-scope="data">
+              {{ data.item.name }} {{ data.item.id }}
+            </template>
+          </v-select>
 
+          <v-sheet elevation="6" class="rounded-lg">
+            <!--<v-radio-group
+              v-model="row"
+              row
+            >
+              <v-radio
+                v-for="tr in targets"
+                :key="tr"
+                :href="'#tab-' + tr"
+                :label="tr"
+                :value="tr"
+                @change="updateContent"
+              ></v-radio>
+            </v-radio-group>-->
+            <v-tabs 
+              class="rounded"
+              next-icon="mdi-arrow-right-bold-box-outline"
+              prev-icon="mdi-arrow-left-bold-box-outline"
+              show-arrows
+            >
+              <v-tabs-slider color="blue"></v-tabs-slider>
               <v-tab
                 v-for="tr in targets"
                 :key="tr"
                 :href="'#tab-' + tr"
+                @change="updateSw(tr)"
               >
-                {{ tr }}
+                {{ tr[0] }}
               </v-tab>
-              
             </v-tabs>
           </v-sheet>
 
           <br>
 
-          <v-select
-            :items="fwversions"
-            label="Firmware Version"
-            class="rounded"
-            solo
-          ></v-select>
-          <v-list class="rounded">
+          <!--<v-list class="rounded" elevation="6">
             <v-list-item 
                 v-for="item in fwflags"                           
                 :key="item.id"
@@ -41,48 +70,72 @@
                 ></v-checkbox>
               </v-row>
             </v-list-item>
-          </v-list>
-          <br><br><br>
+          </v-list>-->
+
+          <v-textarea
+            name="changelogbox"
+            label="Select a firmware version to get notes"
+            :value="changelog"
+            solo
+            readonly
+          ></v-textarea>
+
+          <br><br>
 
           <v-btn
               color="primary"
               block
               elevation="2"
               large
+              @click="flashFw"
           >Write</v-btn>
         </div>
       </v-container>
+
+      <v-dialog
+        v-model="dialog"
+        hide-overlay
+        persistent
+        width="300"
+        class="pt-2"
+      >
+        <v-card
+          color="primary"
+          dark
+        >
+          <v-card-text>
+            Loading firmware...
+            <v-progress-linear
+              indeterminate
+              color="white"
+              class="mb-0"
+            ></v-progress-linear>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
 
   </v-container>
 </template>
 
 <script>
-const https = require('https')
-
-var targets = [
-  "TX16s",
-  "QX7",
-  "X9D Plus",
-  "T-Lite"
-];
-
-const options = {
-  hostname: 'edgetx-targets.surge.sh',
-  port: 443,
-  path: '/targets.json',
-  method: 'GET',
-  json: true
-}
+// eslint-disable-next-line no-unused-vars
+import {connectDFU, downloadDFU} from '../support/dfu-util/dfu-util.js'
+// eslint-disable-next-line no-unused-vars
+const fwbranch = require("../support/fw-branch.js");
 
 export default {
   name: 'FlasherPage',
   
   data () {
       return {
-        targets,
+        targets: [],
         fwversions: [],
-        fwflags: [],
+        changelog: "",
+
         model: [],
+        currfw: [],
+        currtr: "",
+        dialog: false
       }
   },
 
@@ -92,29 +145,50 @@ export default {
       return a.id == b.id;
     },
 
-    fetchReleases(){
+    async updateContent() {
       var self = this;
 
-      const req = https.request(options, res => {
-        console.log(`statusCode: ${res.statusCode}`)
+      self.dialog = true;
+      var indexdat = await fwbranch.downloadMetadata(self.currfw, fwbranch.defaultRepo);
+      console.log(indexdat);
 
-        res.on('data', d => {
-          var curr_release = JSON.parse(d);
-          console.log(curr_release[0].options);
-          self.fwflags = curr_release[0].options;
-        })
-      })
+      if (indexdat != "") {
+        self.targets = indexdat.targets;
+        self.changelog = indexdat.changelog;
+        console.log("Changelog updated");
+      } else {
+        self.changelog = "Firmware does not contain any metadata, please try another revision."
+      }
 
-      req.on('error', error => {
-        console.error(error)
-      })
+      self.dialog = false;
+    },
 
-      req.end()
-    }
+    updateSw(swvalue) {
+      this.currtr = swvalue[1];
+    },
+
+    async flashFw() {
+      var self = this;
+      console.log("--- Debug ---");
+      console.log(this.currtr);
+      console.log(this.currfw);
+      console.log("- end debug -");
+
+      var fwbin = await fwbranch.downloadArtifact(this.currtr, self.currfw, fwbranch.defaultRepo);
+
+      connectDFU();
+      downloadDFU(fwbin);
+    },
+
+    async updateVersions() {
+      var self = this;
+      self.fwversions = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
+      console.log(self.fwversions);
+    },
   },
 
   created() {
-    this.fetchReleases()
+    this.updateVersions()
   }
 }
 
