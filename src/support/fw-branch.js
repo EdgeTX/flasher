@@ -5,7 +5,7 @@ const AdmZip = require('adm-zip');
 var defaultRepo = {
     owner: 'EdgeTX',
     repo: 'EdgeTX',
-    authKey: `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`
+    authKey: `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`
 }
 
 async function downloadArtifact(firmwareFile, artifact, repoInfo) {
