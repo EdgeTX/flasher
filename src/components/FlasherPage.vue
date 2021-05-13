@@ -171,8 +171,8 @@ export default {
 
       var fwbin = await fwbranch.downloadArtifact(this.currtr, self.currfw, fwbranch.defaultRepo);
 
-      connectDFU();
-      downloadDFU(fwbin);
+      //connectDFU();
+      //downloadDFU(fwbin);
     },
 
     async updateVersions() {
