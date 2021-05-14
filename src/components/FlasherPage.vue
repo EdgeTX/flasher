@@ -21,7 +21,7 @@
             </template>
           </v-select>
 
-          <v-sheet elevation="6" class="rounded-lg">
+          <v-sheet elevation="3" class="rounded-lg">
             <!--<v-radio-group
               v-model="row"
               row
@@ -73,6 +73,7 @@
           </v-list>-->
 
           <v-textarea
+            elevation="3"
             name="changelogbox"
             label="Select a firmware version to get notes"
             :value="changelog"
@@ -80,15 +81,26 @@
             readonly
           ></v-textarea>
 
-          <br><br>
+          <br>
 
           <v-btn
-              color="primary"
+              color=""
               block
               elevation="2"
               large
               @click="flashFw"
+              :disabled="noPopulatedInfo"
           >Write</v-btn>
+
+          <v-btn
+              class="mt-4"
+              color="primary"
+              block
+              elevation="2"
+              large
+              @click="saveFw"
+              :disabled="noPopulatedInfo"
+          >Save to File</v-btn>
         </div>
       </v-container>
 
@@ -103,12 +115,28 @@
           dark
         >
           <v-card-text class="pt-2">
-            Loading firmware...
+            {{ message }}
             <v-progress-linear
               indeterminate
               color="white"
               class="mb-0"
             ></v-progress-linear>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog
+        v-model="dialogm"
+        hide-overlay
+        persistent
+        width="300"
+      >
+        <v-card
+          color="primary"
+          dark
+        >
+          <v-card-text class="pt-2">
+            {{ message }}
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -135,7 +163,10 @@ export default {
         model: [],
         currfw: [],
         currtr: "",
-        dialog: false
+        dialog: false,
+        dialogm: false,
+        message: "Loading firmware...",
+        noPopulatedInfo: true
       }
   },
 
@@ -149,15 +180,24 @@ export default {
       var self = this;
 
       self.dialog = true;
+      self.message = "Downloading metadata...";
+      self.noPopulatedInfo = true;
+
       var indexdat = await fwbranch.downloadMetadata(self.currfw, fwbranch.defaultRepo);
       console.log(indexdat);
 
       if (indexdat != "") {
         self.targets = indexdat.targets;
         self.changelog = indexdat.changelog;
+        self.currtr = indexdat.targets[0][1];
+        self.noPopulatedInfo = false;
+
         console.log("Changelog updated");
       } else {
+        self.currtr = "";
         self.changelog = "Firmware does not contain any metadata, please try another revision."
+        self.noPopulatedInfo = true;
+        self.targets = [];
       }
 
       self.dialog = false;
@@ -169,17 +209,42 @@ export default {
 
     async flashFw() {
       var self = this;
+      self.dialog = true;
+      self.message = "Downloading bin...";
+       
       // eslint-disable-next-line no-unused-vars
-      var fwbin = await fwbranch.downloadArtifact(this.currtr, self.currfw, fwbranch.defaultRepo);
+      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
+      self.dialog = false;
+
+      self.message = "Function is not implemented yet!";
+      self.dialogm = true;
 
       //connectDFU();
       //downloadDFU(fwbin);
+      
+    },
+
+    async saveFw() {
+      var self = this;
+
+      self.dialog = true;
+      self.message = "Downloading bin...";
+
+      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
+
+      self.message = "Creating binary package...";
+      const element = document.createElement("a");
+      const file = new Blob([Uint8Array.from(fwbin).buffer], {type: "text/plain"});
+      element.href = URL.createObjectURL(file);
+      element.download = "firmware.bin";
+      element.click();
+
+      self.dialog = false;
     },
 
     async updateVersions() {
       var self = this;
       self.fwversions = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
-      console.log(self.fwversions);
     },
   },
 

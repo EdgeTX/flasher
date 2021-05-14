@@ -13,8 +13,8 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 850,
+    height: 650,
     resizable: false,
     webPreferences: {
       webSecurity: false,
@@ -23,6 +23,9 @@ async function createWindow() {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     }
   })
+
+  win.setMenu(null);
+  win.setAutoHideMenuBar(true)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
