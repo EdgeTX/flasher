@@ -8,6 +8,7 @@ import FlasherPage from './components/FlasherPage.vue'
 import WelcomePage from './components/WelcomePage.vue'
 import BackupPage from './components/BackupPage.vue'
 import SettingsPage from './components/SettingsPage.vue'
+import YAMLConfiguration from './components/YAMLConfiguration.vue'
 
 const router = new VueRouter({
   mode: 'history',
@@ -15,6 +16,7 @@ const router = new VueRouter({
       { path: '/welcome',  component: WelcomePage },
       { path: '/flash',    component: FlasherPage },
       { path: '/backup',   component: BackupPage },
+      { path: '/config',   component: YAMLConfiguration },
       { path: '/settings', component: SettingsPage },
       { path: '*', redirect: '/welcome' }
   ]

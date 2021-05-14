@@ -2,20 +2,20 @@
       <v-container>
 
         <v-sheet class="pt-1 pl-1 rounded">
-          <p class="h6 font-weight-bold pt-1 pl-2">Flasher Settings</p>
+          <p class="h6 font-weight-bold pt-1 pl-2">Flasher/Config Settings</p>
           <v-sheet class="pl-5">
             <v-switch
               v-model="advancedFlash"
               inset
-              label="Advanced Flasher Mode"
+              label="Advanced Mode (Show all options)"
               @change="updateProps()"
             ></v-switch>
-            <v-switch
+            <!--<v-switch
               v-model="alphaRelease"
               inset
               label="Show Unstable Releases"
               @change="updateProps()"
-            ></v-switch>
+            ></v-switch>-->
           </v-sheet>
         </v-sheet>
 

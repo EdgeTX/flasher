@@ -10,7 +10,7 @@
 
           <br><br>
 
-          <div class="mt-10 mr-3 ml-3">
+          <div class="mt-10 mr-6 ml-6">
           The new alternative to OpenTX Companion for updating radio firmware and optimizing backups. To change the theme or other options, go to the settings tab.
           </div>
         </v-row>
