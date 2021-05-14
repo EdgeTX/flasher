@@ -22,19 +22,6 @@
           </v-select>
 
           <v-sheet elevation="3" class="rounded-lg">
-            <!--<v-radio-group
-              v-model="row"
-              row
-            >
-              <v-radio
-                v-for="tr in targets"
-                :key="tr"
-                :href="'#tab-' + tr"
-                :label="tr"
-                :value="tr"
-                @change="updateContent"
-              ></v-radio>
-            </v-radio-group>-->
             <v-tabs 
               class="rounded"
               next-icon="mdi-arrow-right-bold-box-outline"
@@ -127,17 +114,24 @@
 
       <v-dialog
         v-model="dialogm"
-        hide-overlay
         persistent
-        width="300"
+        max-width="290"
       >
-        <v-card
-          color="primary"
-          dark
-        >
-          <v-card-text class="pt-2">
-            {{ message }}
-          </v-card-text>
+        <v-card>
+          <v-card-title class="headline">
+            {{ headingmsg }}
+          </v-card-title>
+          <v-card-text>{{ message }}</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              text
+              @click="dialogm = false"
+            >
+              Close
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-dialog>
 
@@ -166,6 +160,7 @@ export default {
         dialog: false,
         dialogm: false,
         message: "Loading firmware...",
+        headingmsg: "Error",
         noPopulatedInfo: true
       }
   },
@@ -221,7 +216,6 @@ export default {
 
       //connectDFU();
       //downloadDFU(fwbin);
-      
     },
 
     async saveFw() {
@@ -236,7 +230,7 @@ export default {
       const element = document.createElement("a");
       const file = new Blob([Uint8Array.from(fwbin).buffer], {type: "text/plain"});
       element.href = URL.createObjectURL(file);
-      element.download = "firmware.bin";
+      element.download = self.currtr + "edgetx-"+self.currfw+".bin";
       element.click();
 
       self.dialog = false;
@@ -252,5 +246,4 @@ export default {
     this.updateVersions()
   }
 }
-
 </script>
