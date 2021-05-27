@@ -6,9 +6,14 @@ The new alternative to OpenTX Companion for updating radio firmware and optimizi
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Compiles and hot-reloads for development in a browser
 ```
 npm run serve
+```
+
+### Compiles and hot-reloads for development in an electron window
+```
+npm run electron:serve
 ```
 
 ### Create executables for production
