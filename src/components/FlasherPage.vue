@@ -3,6 +3,25 @@
 
       <v-container>
         <div>
+
+          <v-select
+            :items="fwbranches"
+            v-model="currbr"
+            item-text="name"
+            item-value="name"
+            label="Firmware Branch"
+            class="rounded"
+            solo
+            @change="updateVersions"
+          >
+            <template slot="selection" slot-scope="data">
+              {{ data.item.name }}
+            </template>
+            <template slot="item" slot-scope="data">
+              {{ data.item.name }}
+            </template>
+          </v-select>
+
           <v-select
             :items="fwversions"
             v-model="currfw"
@@ -14,10 +33,10 @@
             @change="updateContent"
           >
             <template slot="selection" slot-scope="data">
-              {{ data.item.name }} {{ data.item.id }}
+              {{ data.item.id }}
             </template>
             <template slot="item" slot-scope="data">
-              {{ data.item.name }} {{ data.item.id }}
+              {{ data.item.id }}
             </template>
           </v-select>
 
@@ -68,8 +87,6 @@
             readonly
           ></v-textarea>
 
-          <br>
-
           <v-btn
               color=""
               block
@@ -115,7 +132,8 @@
       <v-dialog
         v-model="dialogm"
         persistent
-        max-width="290"
+        max-width="400"
+        scrollable
       >
         <v-card>
           <v-card-title class="headline">
@@ -134,7 +152,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-
   </v-container>
 </template>
 
@@ -144,6 +161,10 @@
 
 // eslint-disable-next-line no-unused-vars
 const fwbranch = require("../support/fw-branch.js");
+var commandExistsSync = require('command-exists').sync;
+const { exec } = require("child_process");
+//const os = require('os');
+const fs = require('fs')
 
 export default {
   name: 'FlasherPage',
@@ -151,11 +172,13 @@ export default {
   data () {
       return {
         targets: [],
+        fwbranches: [],
         fwversions: [],
         changelog: "",
 
         model: [],
         currfw: [],
+        currbr: [],
         currtr: "",
         dialog: false,
         dialogm: false,
@@ -202,6 +225,42 @@ export default {
       this.currtr = swvalue[1];
     },
 
+    // eslint-disable-next-line no-unused-vars
+    dfuUtil(dfuargs) {
+        var self = this;
+        var platformstatus = "";
+
+        if (process.platform == "win32" && fs.statSync("./src/support/win32").isDirectory()) {
+            console.log("Prepared for Windows");
+            platformstatus = "./src/support/win32/dfu-util.exe";
+        } else if (process.platform == "darwin" && fs.statSync("./src/support/darwin").isDirectory()) {
+            console.log("Prepared for MacOS");
+            platformstatus = "./src/support/darwin/dfu-util";
+        } else if (process.platform == "linux" && commandExistsSync("dfu-util")) {
+            console.log("Prepared for Linux");
+            platformstatus = "dfu-util";
+        } else {
+            self.dialog = false;
+            self.message = "This platform is not supported or dfu-util cannot be found, if you are on linux please install it manually.";
+            self.dialogm = true;
+        }
+
+        if (platformstatus != "") {
+            exec(platformstatus + dfuargs.join(' '), (error, stdout, stderr) => {
+              if (stderr) {
+                self.dialog = false;
+                self.message = "dfu-util encountered an error: <br>"+stderr;
+                self.dialogm = true;
+                return;
+              }
+
+              self.dialog = false;
+              self.message = stdout;
+              self.dialogm = true;
+            });
+        }
+    },
+
     async flashFw() {
       var self = this;
       self.dialog = true;
@@ -211,11 +270,10 @@ export default {
       var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
       self.dialog = false;
 
-      self.message = "Function is not implemented yet!";
-      self.dialogm = true;
+      //self.message = "Function is not implemented yet!";
+      //self.dialogm = true;
 
-      //connectDFU();
-      //downloadDFU(fwbin);
+      self.dfuUtil([]);
     },
 
     async saveFw() {
@@ -236,14 +294,41 @@ export default {
       self.dialog = false;
     },
 
+    async updateBranches() {
+      var self = this;
+      var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
+
+      fws.forEach(function (item) {
+        var found = false;
+        self.fwbranches.forEach(function (names) {
+          console.log(names)
+          if(names.name.startsWith(item.name)) {
+            found = true;
+          }
+        });
+
+        if (!found) {
+          self.fwbranches.push(item);
+        }
+      });
+    },
+
     async updateVersions() {
       var self = this;
-      self.fwversions = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
+      var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
+      self.fwversions = [];
+
+      fws.forEach(function (item) {
+        console.log([item.name, self.currbr])
+        if (item.name == self.currbr) {
+          self.fwversions.push(item);
+        }
+      });
     },
   },
 
   created() {
-    this.updateVersions()
+    this.updateBranches()
   }
 }
 </script>
