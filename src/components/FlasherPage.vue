@@ -139,7 +139,7 @@
           <v-card-title class="headline">
             {{ headingmsg }}
           </v-card-title>
-          <v-card-text>{{ message }}</v-card-text>
+          <v-card-text><p v-html="message"></p></v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
@@ -156,21 +156,14 @@
 </template>
 
 <script>
-// eslint-disable-next-line no-unused-vars
 var commandExistsSync = require('command-exists').sync;
 const fwbranch = require("../support/fw-branch.js");
 const { exec } = require("child_process");
 const fs = require('fs')
 const path = require('path')
 
-const fwBinFile = path.join(path.dirname(__dirname), 'src','fw.bin');
-
-fs.writeFile(fwBinFile, "test", err => {
-  if (err) {
-    console.error(err)
-    return
-  }
-})
+// eslint-disable-next-line no-unused-vars
+const {remote} = require("electron")
 
 export default {
   name: 'FlasherPage',
@@ -231,18 +224,17 @@ export default {
       this.currtr = swvalue[1];
     },
 
-    // eslint-disable-next-line no-unused-vars
     dfuUtil(dfuargs) {
         var self = this;
-        var platformstatus = "";
-        const dfuPath = path.join(path.dirname(__dirname), 'src','support/');
+        var platformstatus = ""; 
+        const dfuPath = path.join(path.dirname(remote.app.getAppPath()), '../');
 
-        if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "win32")).isDirectory()) {
+        if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "src/support/dfu-util/win32/")).isDirectory()) {
             console.log("Prepared for Windows");
-            platformstatus = "./src/support/win32/dfu-util.exe";
-        } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "darwin")).isDirectory()) {
+            platformstatus = path.join(dfuPath, "src/support/dfu-util/win32/", "dfu-util.exe").replace(/(\s+)/g, '\\$1');
+        } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "src/support/dfu-util/darwin/")).isDirectory()) {
             console.log("Prepared for MacOS");
-            platformstatus = "./src/support/darwin/dfu-util";
+            platformstatus = path.join(dfuPath, "src/support/dfu-util/darwin/", "dfu-util").replace(/(\s+)/g, '\\$1');
         } else if (process.platform == "linux" && commandExistsSync("dfu-util")) {
             console.log("Prepared for Linux");
             platformstatus = "dfu-util";
@@ -258,7 +250,7 @@ export default {
             exec(`${platformstatus} ${dfuargs.join(' ')}`, (error, stdout, stderr) => {
               self.headingmsg = "Flash Status"
               self.dialog = false;
-              self.message = stderr;
+              self.message = (stderr+"\n"+stdout).replace(/(?:\r\n|\r|\n)/g, '<br>');
               self.dialogm = true;
             });
         }
@@ -273,20 +265,25 @@ export default {
       var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
       self.dialog = false;
 
-      
-      /*fs.readFile(fwBinFile, 'utf8' , (err, data) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-        self.headingmsg = "File info"
-        self.dialog = false;
-        self.message = data;
-        self.dialogm = true;
-      })*/
+      const tmpPath = path.join(remote.app.getPath('temp'), "flash.bin");
 
-      //self.dfuUtil(["-a 0", "--dfuse-address 0x08000000", "--device 0483:df11", "-DE:"+udpath]);
-      self.dfuUtil([]);
+      console.log("Write file")
+      fs.writeFile(tmpPath, fwbin, function(err) {
+          if(err) {
+            self.headingmsg = "File Error"
+            self.dialog = false;
+            self.message = err;
+            self.dialogm = true;
+              
+            return;
+          }
+          console.log("Starting DFU")
+
+          self.dialog = true;
+          self.message = "Waiting for dfu-util...";
+          self.dfuUtil(["-a 0", "--dfuse-address 0x08000000", "--device 0483:df11", "-D"+tmpPath]);
+      }); 
+      //self.dfuUtil([]);
     },
 
     async saveFw() {
