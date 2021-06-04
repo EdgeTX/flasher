@@ -1,6 +1,8 @@
 {
   "name": "edgetx-flasher",
   "version": "0.1.0",
+  "author": "Ari Stehney",
+  "description": "The new flasher for EdgeTX, the cutting edge fork of OpenTX.",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

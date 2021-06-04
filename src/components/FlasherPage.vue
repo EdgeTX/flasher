@@ -157,14 +157,20 @@
 
 <script>
 // eslint-disable-next-line no-unused-vars
-//import {connectDFU, downloadDFU} from '../support/dfu-util/dfu-util.js'
-
-// eslint-disable-next-line no-unused-vars
-const fwbranch = require("../support/fw-branch.js");
 var commandExistsSync = require('command-exists').sync;
+const fwbranch = require("../support/fw-branch.js");
 const { exec } = require("child_process");
-//const os = require('os');
 const fs = require('fs')
+const path = require('path')
+
+const fwBinFile = path.join(path.dirname(__dirname), 'src','fw.bin');
+
+fs.writeFile(fwBinFile, "test", err => {
+  if (err) {
+    console.error(err)
+    return
+  }
+})
 
 export default {
   name: 'FlasherPage',
@@ -229,33 +235,30 @@ export default {
     dfuUtil(dfuargs) {
         var self = this;
         var platformstatus = "";
+        const dfuPath = path.join(path.dirname(__dirname), 'src','support/');
 
-        if (process.platform == "win32" && fs.statSync("./src/support/win32").isDirectory()) {
+        if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "win32")).isDirectory()) {
             console.log("Prepared for Windows");
             platformstatus = "./src/support/win32/dfu-util.exe";
-        } else if (process.platform == "darwin" && fs.statSync("./src/support/darwin").isDirectory()) {
+        } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "darwin")).isDirectory()) {
             console.log("Prepared for MacOS");
             platformstatus = "./src/support/darwin/dfu-util";
         } else if (process.platform == "linux" && commandExistsSync("dfu-util")) {
             console.log("Prepared for Linux");
             platformstatus = "dfu-util";
         } else {
+            self.headingmsg = "Error"
             self.dialog = false;
             self.message = "This platform is not supported or dfu-util cannot be found, if you are on linux please install it manually.";
             self.dialogm = true;
         }
 
         if (platformstatus != "") {
-            exec(platformstatus + dfuargs.join(' '), (error, stdout, stderr) => {
-              if (stderr) {
-                self.dialog = false;
-                self.message = "dfu-util encountered an error: <br>"+stderr;
-                self.dialogm = true;
-                return;
-              }
-
+            // eslint-disable-next-line no-unused-vars
+            exec(`${platformstatus} ${dfuargs.join(' ')}`, (error, stdout, stderr) => {
+              self.headingmsg = "Flash Status"
               self.dialog = false;
-              self.message = stdout;
+              self.message = stderr;
               self.dialogm = true;
             });
         }
@@ -270,9 +273,19 @@ export default {
       var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
       self.dialog = false;
 
-      //self.message = "Function is not implemented yet!";
-      //self.dialogm = true;
+      
+      /*fs.readFile(fwBinFile, 'utf8' , (err, data) => {
+        if (err) {
+          console.error(err)
+          return
+        }
+        self.headingmsg = "File info"
+        self.dialog = false;
+        self.message = data;
+        self.dialogm = true;
+      })*/
 
+      //self.dfuUtil(["-a 0", "--dfuse-address 0x08000000", "--device 0483:df11", "-DE:"+udpath]);
       self.dfuUtil([]);
     },
 
@@ -317,6 +330,7 @@ export default {
       var self = this;
       var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
       self.fwversions = [];
+      self.noPopulatedInfo = true;
 
       fws.forEach(function (item) {
         console.log([item.name, self.currbr])
