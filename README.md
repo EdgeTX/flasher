@@ -4,42 +4,32 @@ The new alternative to OpenTX Companion for updating radio firmware and optimizi
 <br>
 
 ## Features working
-- Downloading firmware and saveing
+- Downloading firmware and saving
 - Themeing and Persistent config storage
-
-## In-Progress Features
 - DFU Flashing
-- Local filesystem firmware selection
+## In-Progress Features
 - SD Card automated downloads and setups
 - YAML Configuration Interface
 - SD Card and DFU Backup
 
-### Project setup
+### NPM Tasks
+
+#### Setup project
 ```
 npm install
 ```
-<br>
-<br>
 
-#### Compiles and hot-reloads for development in a browser
-```
-npm run serve
-```
-
-#### Compiles and hot-reloads for development in an electron window
+#### Compiles and hot-reloads for development
 ```
 npm run electron:serve
 ```
+This compiles and hot-reloads inside of a fully functioned electron window, just note that DFU-util may not be found in this mode.
 
 #### Create executables for production
 ```
 npm run electron:build
 ```
-
-#### Lints and fixes files
-```
-npm run lint
-```
+This will compile and package into the executable/installer for whatever OS you are running. On MacOS it will create an app, dmg, and zip file. On linux it will create an AppImage, snap, and deb file. On windows it will create an exe.
 
 ### Customized configurations
 See [Configuration Reference](https://cli.vuejs.org/config/).
