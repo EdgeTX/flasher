@@ -25,7 +25,7 @@
           <v-select
             :items="fwversions"
             v-model="currfw"
-            item-text="name"
+            item-text="created_at"
             item-value="id"
             label="Firmware Version"
             class="rounded"
@@ -33,10 +33,10 @@
             @change="updateContent"
           >
             <template slot="selection" slot-scope="data">
-              {{ data.item.id }}
+              {{ data.item.created_at }}
             </template>
             <template slot="item" slot-scope="data">
-              {{ data.item.id }}
+              {{ data.item.created_at }}
             </template>
           </v-select>
 

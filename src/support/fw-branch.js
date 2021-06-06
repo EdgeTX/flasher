@@ -74,6 +74,8 @@ async function indexArtifacts(repoInfo) {
         repo: repoInfo.repo,
     })
 
+    console.log(artifacts.data.artifacts);
+
     return artifacts.data.artifacts;
 }
 
