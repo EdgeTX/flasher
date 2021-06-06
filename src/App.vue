@@ -71,6 +71,15 @@
     </v-app>
 </template>
 
+<style>
+  body {
+    overflow-x: hidden;
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
 <script>
 export default {
   name: 'EdgeTX-Flasher',

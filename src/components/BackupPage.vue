@@ -9,6 +9,8 @@
 
 <script>
 
+// dfu-util.exe -a 0 --dfuse-address 0x08000000:524288 --device 0483:df11  -U<path here>
+
 export default {
   name: 'BackupPage',
   

@@ -122,7 +122,7 @@
           <v-card-title class="headline">
             {{ headingmsg }}
           </v-card-title>
-          <v-card-text><p v-html="message"></p></v-card-text>
+          <v-card-text><v-container id="containerbox"><p v-html="message"></p></v-container></v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
@@ -141,7 +141,6 @@
 <script>
 var commandExistsSync = require('command-exists').sync;
 const fwbranch = require("../support/fw-branch.js");
-const { exec } = require("child_process");
 const fs = require('fs')
 const path = require('path')
 const {remote} = require("electron")
@@ -230,12 +229,35 @@ export default {
         }
 
         if (platformstatus != "") {
-            // eslint-disable-next-line no-unused-vars
-            exec(`${platformstatus} ${dfuargs.join(' ')}`, (error, stdout, stderr) => {
-              self.headingmsg = "Flash Status"
+            var dfucmd = require('child_process').execFile(platformstatus, dfuargs); 
+
+            dfucmd.stdout.on('data', (data) => {
+              self.headingmsg = "Flashing..."
               self.dialog = false;
-              self.message = (stderr+"\n"+stdout).replace(/(?:\r\n|\r|\n)/g, '<br>');
+              self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
               self.dialogm = true;
+
+              let element = document.getElementById("containerbox");
+              element.scrollIntoView({behavior: "smooth", block: "end"});
+            });
+
+            dfucmd.stderr.on('data', (data) => {
+              self.headingmsg = "Flashing..."
+              self.dialog = false;
+              self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
+              self.dialogm = true;
+
+              let element = document.getElementById("containerbox");
+              element.scrollIntoView({behavior: "smooth", block: "end"});
+            });
+
+            dfucmd.on('close', () => {
+              self.headingmsg = "Flashing Complete"
+              self.dialog = false;
+              self.dialogm = true;
+
+              let element = document.getElementById("containerbox");
+              element.scrollIntoView({behavior: "smooth", block: "end"});
             });
         }
     },
@@ -278,9 +300,8 @@ export default {
 
           self.dialog = true;
           self.message = "Waiting for dfu-util...";
-          self.dfuUtil(["-a 0", "--dfuse-address 0x08000000", "--device 0483:df11", "-D"+tmpPath]);
+          self.dfuUtil(["-a", "0", "--dfuse-address", "0x08000000", "--device", "0483:df11", "-D", tmpPath]);
       }); 
-      //self.dfuUtil([]);
     },
 
     async saveFw() {
