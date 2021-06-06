@@ -61,23 +61,6 @@
 
           <br>
 
-          <!--<v-list class="rounded" elevation="6">
-            <v-list-item 
-                v-for="item in fwflags"                           
-                :key="item.id"
-             >
-              <v-row class="ml-1">
-                <v-checkbox 
-                  v-model="model"             
-                  :label="item.name + '    -    ' + item.description"  
-                  :value="item.name" 
-                  :value-comparator="comparator"
-                  class="shrink mr-2"
-                ></v-checkbox>
-              </v-row>
-            </v-list-item>
-          </v-list>-->
-
           <v-textarea
             elevation="3"
             name="changelogbox"
@@ -161,8 +144,6 @@ const fwbranch = require("../support/fw-branch.js");
 const { exec } = require("child_process");
 const fs = require('fs')
 const path = require('path')
-
-// eslint-disable-next-line no-unused-vars
 const {remote} = require("electron")
 
 export default {
@@ -227,17 +208,20 @@ export default {
     dfuUtil(dfuargs) {
         var self = this;
         var platformstatus = ""; 
-        const dfuPath = path.join(path.dirname(remote.app.getAppPath()), '../');
+        const dfuPath = path.dirname(remote.app.getAppPath());
 
-        if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "src/support/dfu-util/win32/")).isDirectory()) {
+        if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/win64/")).isDirectory()) {
             console.log("Prepared for Windows");
-            platformstatus = path.join(dfuPath, "src/support/dfu-util/win32/", "dfu-util.exe").replace(/(\s+)/g, '\\$1');
-        } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "src/support/dfu-util/darwin/")).isDirectory()) {
+            platformstatus = path.join(dfuPath, "../src/support/dfu-util/win64/", "dfu-util.exe").replace(/(\s+)/g, '\\$1');
+
+        } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/darwin/")).isDirectory()) { // working method
             console.log("Prepared for MacOS");
-            platformstatus = path.join(dfuPath, "src/support/dfu-util/darwin/", "dfu-util").replace(/(\s+)/g, '\\$1');
-        } else if (process.platform == "linux" && commandExistsSync("dfu-util")) {
+            platformstatus = path.join(dfuPath, "../src/support/dfu-util/darwin/", "dfu-util").replace(/(\s+)/g, '\\$1');
+
+        } else if (process.platform == "linux" && commandExistsSync("dfu-util")) { // working method
             console.log("Prepared for Linux");
             platformstatus = "dfu-util";
+
         } else {
             self.headingmsg = "Error"
             self.dialog = false;
@@ -257,6 +241,7 @@ export default {
     },
 
     async flashFw() {
+
       var self = this;
       self.dialog = true;
       self.message = "Downloading bin...";
@@ -265,9 +250,21 @@ export default {
       var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
       self.dialog = false;
 
-      const tmpPath = path.join(remote.app.getPath('temp'), "flash.bin");
+      var tmpPath = path.join(remote.app.getPath('userData'), "flash.bin");
 
-      console.log("Write file")
+      fs.unlink(tmpPath, (err) => {
+        if (err) {
+          self.headingmsg = "File Error"
+          self.dialog = false;
+          self.message = err;
+          self.dialogm = true;
+
+          return
+        }
+
+        console.log("Cache Cleaned")
+      })
+
       fs.writeFile(tmpPath, fwbin, function(err) {
           if(err) {
             self.headingmsg = "File Error"
