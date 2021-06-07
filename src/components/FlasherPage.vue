@@ -115,7 +115,7 @@
       <v-dialog
         v-model="dialogm"
         persistent
-        max-width="400"
+        max-width="600"
         scrollable
       >
         <v-card>
@@ -129,6 +129,7 @@
               color="primary"
               text
               @click="dialogm = false"
+              :disabled="winready"
             >
               Close
             </v-btn>
@@ -159,11 +160,13 @@ export default {
         currfw: [],
         currbr: [],
         currtr: "",
+        noPopulatedInfo: true,
+
         dialog: false,
         dialogm: false,
         message: "Loading firmware...",
         headingmsg: "Error",
-        noPopulatedInfo: true
+        winready: false
       }
   },
 
@@ -229,6 +232,7 @@ export default {
         }
 
         if (platformstatus != "") {
+            self.winready = true;
             var dfucmd = require('child_process').execFile(platformstatus, dfuargs); 
 
             dfucmd.stdout.on('data', (data) => {
@@ -236,6 +240,8 @@ export default {
               self.dialog = false;
               self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
               self.dialogm = true;
+
+              self.winready = true;
 
               let element = document.getElementById("containerbox");
               element.scrollIntoView({behavior: "smooth", block: "end"});
@@ -247,11 +253,14 @@ export default {
               self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
               self.dialogm = true;
 
+              self.winready = true;
+
               let element = document.getElementById("containerbox");
               element.scrollIntoView({behavior: "smooth", block: "end"});
             });
 
             dfucmd.on('close', () => {
+              self.winready = false;
               self.headingmsg = "Flashing Complete"
               self.dialog = false;
               self.dialogm = true;
