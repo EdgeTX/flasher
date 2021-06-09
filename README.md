@@ -1,5 +1,8 @@
 # EdgeTX Flasher
 The new alternative to OpenTX Companion for updating radio firmware and optimizing backups. This is not finished yet, it is still in the prototype phase.
+
+### Prebuilt Binaries
+Check the releases section for prebuilt rolling-release binaries for the flasher.
 <br>
 <br>
 
