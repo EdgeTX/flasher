@@ -25,14 +25,14 @@
             </v-list-item-content>
           </v-list-item>
 
-          <!--<v-list-item link to="/sdcard">
+          <v-list-item link to="/sdcard">
             <v-list-item-action>
               <v-icon>mdi-database-arrow-right</v-icon>
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title>SD Card</v-list-item-title>
             </v-list-item-content>
-          </v-list-item>-->
+          </v-list-item>
 
           <v-list-item link to="/config">
             <v-list-item-action>
@@ -66,7 +66,7 @@
       </v-main>
   
       <v-footer app>
-        <span>&copy; {{ new Date().getFullYear() }} EdgeTX Team</span>
+        <span>&copy; {{ new Date().getFullYear() }} Ari Stehney, EdgeTX Team</span>
       </v-footer>
     </v-app>
 </template>

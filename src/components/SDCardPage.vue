@@ -18,13 +18,15 @@
                     v-model="radioSelect"
                     label="Radio Target"
                     class="rounded"
+                    return-object
+                    item-text="name"
                     solo
                   >
                     <template slot="selection" slot-scope="data">
-                      {{ data.item }}
+                      {{ data.item.name }}
                     </template>
                     <template slot="item" slot-scope="data">
-                      {{ data.item }}
+                      {{ data.item.name }}
                     </template>
                   </v-select>
 
@@ -62,6 +64,7 @@
                     label="Removable Disk"
                     class="rounded"
                     item-text="name"
+                    return-object
                     solo
                   >
                     <template slot="selection" slot-scope="data">
@@ -125,6 +128,11 @@
 
 <script>
 const si = require('systeminformation');
+const fwbranch = require("../support/fw-branch.js");
+const axios = require('axios');
+const AdmZip = require('adm-zip');
+var path = require('path');
+const fs = require('fs');
 
 export default {
   name: 'SDCardPage',
@@ -139,16 +147,63 @@ export default {
         headingmsg: "Error",
         winready: false,
 
-        targets: ["NV14", "Horus", "Taranis-X7", "Taranis-X9"],
+        targets: [
+          {name: "FlySky Nirvana", target: "nv14.zip"},
+          {name: "Jumper T16", target: "horus.zip"},
+          {name: "Jumper T18", target: "horus.zip"},
+          {name: "Jumper T-Lite", target: "taranis-x7.zip"},
+          {name: "Jumper T12", target: "taranis-x7.zip"},
+          {name: "Jumper T8", target: "taranis-x7.zip"},
+          {name: "FrSky Horus X10", target: "horus.zip"},
+          {name: "FrSky Horus X12s", target: "horus.zip"},
+          {name: "FrSky QX7", target: "taranis-x7.zip"},
+          {name: "FrSky X9D", target: "taranis-x9.zip"},
+          {name: "FrSky X9D Plus", target: "taranis-x9.zip"},
+          {name: "FrSky X9D Plus 2019", target: "taranis-x9.zip"},
+          {name: "FrSky X-Lite", target: "taranis-x7.zip"},
+          {name: "FrSky X9 Lite", target: "taranis-x7.zip"},
+          {name: "Radiomaster TX12", target: "taranis-x7.zip"},
+          {name: "Radiomaster TX16s", target: "horus.zip"},
+        ],
         voices: ["CZ", "DE", "EN", "ES", "FR", "IT", "PT", "RU"],
         disks: ["None"],
-        diskSelect: {},
-        radioSelect: "Horus",
+        diskSelect: {mount: ""},
+        radioSelect: {},
         voiceSelect: ['EN']
       }
   },
 
   methods: {
+    removeDir (pathx) {
+      var self = this;
+      if (fs.existsSync(pathx)) {
+        const files = fs.readdirSync(pathx)
+
+        if (files.length > 0) {
+          files.forEach(function(filename) {
+            if (fs.statSync(pathx + "/" + filename).isDirectory()) {
+              try {
+                self.removeDir(path.join(pathx, filename))
+                fs.rmdirSync(path.join(pathx, filename), { recursive: true });
+              } catch (error) {
+                console.log(error);
+              }
+            } else {
+              try {
+                fs.unlinkSync(path.join(pathx, filename))
+              } catch (error) {
+                console.log(error);
+              }
+            }
+          })
+        } else {
+          console.log("No files found in the directory.")
+        }
+      } else {
+        self.message += "Directory path not found."
+      }
+    },
+
     async updateConfig() {
       try {
         var self = this;
@@ -164,8 +219,89 @@ export default {
     },
 
     async displayResults() {
-      console.log(this.radioSelect);
-      console.log(this.voiceSelect);
+      var self = this;
+      self.headingmsg = "Preparing SD Card"
+      self.message = "Fetching index...<br>";
+      self.dialogm = true;
+      self.winready = true;
+
+      var sddir = "";
+      if (fs.existsSync(self.diskSelect.mount)) {
+        console.log("Found disk");
+        console.log(self.diskSelect.mount);
+        sddir = self.diskSelect.mount;
+      } else {
+        self.headingmsg = "Error"
+        self.message = "Please select a valid disk!";
+        self.dialogm = true;
+        self.winready = false;
+
+        return;
+      }
+      
+      self.message += "Erasing card....<br>";
+      self.removeDir(sddir);
+
+      var sdreleases = await fwbranch.listReleases(fwbranch.sdCardRepo);
+      self.message += "Filtering releases...<br>";
+
+      var asseturl = sdreleases.filter(obj => {
+        console.log(obj);
+        return obj.tag_name == "latest"
+      })[0].assets.filter(obj => {
+        return obj.name == self.radioSelect.target;
+      })[0].browser_download_url;
+
+      self.message += "Downloading structure package...<br>";
+      const body = await axios.get(asseturl, {
+          responseType: 'arraybuffer',
+      });
+
+      self.message += "Decompressing structure package...<br>";
+      var zip = new AdmZip(Buffer.from(body.data));
+      var zipEntries = zip.getEntries(); // an array of ZipEntry records
+
+      self.message += "Moving to SD Card... (Please do not unplug now)<br>";
+      zipEntries.forEach(function (zipEntry) {
+          var xpath = path.join(sddir, zipEntry.entryName.substring(zipEntry.entryName.indexOf('/') + 1));
+          if (!zipEntry.isDirectory) {
+            xpath = xpath.substring(0, xpath.lastIndexOf("/"))
+          }
+
+          zip.extractEntryTo(zipEntry.entryName, xpath, false, /*overwrite*/ true);
+      });
+
+      self.message += "Fetching sound pack index...<br>";
+      var voicereleases = await fwbranch.listReleases(fwbranch.voiceRepo);
+
+      self.message += "Filtering sound pack releases...<br>";
+      var voiceurls = voicereleases.filter(obj => {
+        return obj.tag_name == "latest"
+      })[0].assets.filter(obj => {
+        return self.voiceSelect.some(v => obj.name.includes(v.toLowerCase()))
+      });
+
+      self.message += "Downloading and decompressing all sound packs...<br><br>";
+
+      var finishedvp = 0;
+      voiceurls.forEach(async function(vurl, index, array){
+        const voicebody = await axios.get(vurl.browser_download_url, {
+            responseType: 'arraybuffer',
+        });
+
+        var vzip = new AdmZip(Buffer.from(voicebody.data));
+        await vzip.extractAllTo(sddir, /*overwrite*/ false);
+
+        self.message += `Finished voicepack ${index}<br>`;
+
+        finishedvp += 1;
+
+        if (finishedvp == (array.length)) {
+          console.log("Finished loading");
+          self.winready = false;
+          self.message += `<br><b>Finished adding all packages, You may remove the disk now!</b><br>`;
+        }
+      });
     },
   },
 

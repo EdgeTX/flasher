@@ -9,6 +9,18 @@ var defaultRepo = {
     authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
 }
 
+var sdCardRepo = {
+    owner: 'EdgeTX',
+    repo: 'edgetx-sdcard',
+    authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
+}
+
+var voiceRepo = {
+    owner: 'EdgeTX',
+    repo: 'edgetx-sdcard-sounds',
+    authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
+}
+
 async function downloadArtifact(firmwareFile, artifact, repoInfo) {
     const octokit = new Octokit({
         auth: repoInfo.authKey
@@ -86,18 +98,30 @@ async function branchArtifact(repoInfo, repourl) {
         auth: repoInfo.authKey
     });
 
-    const artifactInfo = await octokit.request('GET '+repourl, {
-        owner: repoInfo.owner,
-        repo: repoInfo.repo,
-        artifact_id: 42
-    });
+    const artifactInfo = await octokit.request('GET '+repourl, {});
 
     return artifactInfo.data;
 }
 
+async function listReleases(repoInfo) {
+    const octokit = new Octokit({
+        auth: repoInfo.authKey
+    });
+
+    var releaselist = await octokit.request('GET /repos/{owner}/{repo}/releases', {
+        owner: repoInfo.owner,
+        repo: repoInfo.repo,
+    })
+
+    return releaselist.data;
+}
 
 exports.downloadArtifact = downloadArtifact;
 exports.indexArtifacts = indexArtifacts;
 exports.downloadMetadata = downloadMetadata;
 exports.branchArtifact = branchArtifact;
+exports.listReleases = listReleases;
+
 exports.defaultRepo = defaultRepo;
+exports.voiceRepo = voiceRepo;
+exports.sdCardRepo = sdCardRepo;
