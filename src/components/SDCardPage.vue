@@ -2,7 +2,7 @@
 <v-container>
     <v-container>
         <div>
-          <h2>SD Card Preperation Tool</h2>
+          <h2>SD Card Preparation Tool</h2>
           <br>
           <v-expansion-panels
             v-model="panel"
