@@ -69,18 +69,35 @@ async function indexArtifacts(repoInfo) {
         auth: repoInfo.authKey
     });
 
-    const artifacts = await octokit.request('GET /repos/{owner}/{repo}/actions/artifacts', {
+    const artifacts = await octokit.request('GET /repos/{owner}/{repo}/actions/runs', { //GET /repos/{owner}/{repo}/actions/artifacts', {
         owner: repoInfo.owner,
         repo: repoInfo.repo,
     })
 
-    console.log(artifacts.data.artifacts);
+    //console.log(artifacts.data.artifacts);
+    console.log(artifacts.data.workflow_runs);
 
-    return artifacts.data.artifacts;
+    //return artifacts.data.artifacts;
+    return artifacts.data.workflow_runs;
+}
+
+async function branchArtifact(repoInfo, repourl) {
+    const octokit = new Octokit({
+        auth: repoInfo.authKey
+    });
+
+    const artifactInfo = await octokit.request('GET '+repourl, {
+        owner: repoInfo.owner,
+        repo: repoInfo.repo,
+        artifact_id: 42
+    });
+
+    return artifactInfo.data;
 }
 
 
 exports.downloadArtifact = downloadArtifact;
 exports.indexArtifacts = indexArtifacts;
 exports.downloadMetadata = downloadMetadata;
+exports.branchArtifact = branchArtifact;
 exports.defaultRepo = defaultRepo;

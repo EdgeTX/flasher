@@ -6,7 +6,7 @@ import store from "./store";
 import App from './App.vue'
 import FlasherPage from './components/FlasherPage.vue'
 import WelcomePage from './components/WelcomePage.vue'
-import BackupPage from './components/BackupPage.vue'
+import SDCardPage from './components/SDCardPage.vue'
 import SettingsPage from './components/SettingsPage.vue'
 import YAMLConfiguration from './components/YAMLConfiguration.vue'
 
@@ -15,7 +15,7 @@ const router = new VueRouter({
   routes: [
       { path: '/welcome',  component: WelcomePage },
       { path: '/flash',    component: FlasherPage },
-      { path: '/backup',   component: BackupPage },
+      { path: '/sdcard',   component: SDCardPage },
       { path: '/config',   component: YAMLConfiguration },
       { path: '/settings', component: SettingsPage },
       { path: '*', redirect: '/welcome' }

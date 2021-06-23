@@ -25,14 +25,14 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item link to="/backup">
+          <!--<v-list-item link to="/sdcard">
             <v-list-item-action>
               <v-icon>mdi-database-arrow-right</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Backup</v-list-item-title>
+              <v-list-item-title>SD Card</v-list-item-title>
             </v-list-item-content>
-          </v-list-item>
+          </v-list-item>-->
 
           <v-list-item link to="/config">
             <v-list-item-action>

@@ -1,6 +1,5 @@
 <template>
   <v-container>
-
       <v-container>
         <div>
 
@@ -33,10 +32,10 @@
             @change="updateContent"
           >
             <template slot="selection" slot-scope="data">
-              {{ data.item.created_at }}
+              #{{ data.item.commitId }} ({{ data.item.created_at }})
             </template>
             <template slot="item" slot-scope="data">
-              {{ data.item.created_at }}
+              #{{ data.item.commitId }} ({{ data.item.created_at }})
             </template>
           </v-select>
 
@@ -335,19 +334,31 @@ export default {
       var self = this;
       var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
 
-      fws.forEach(function (item) {
+      fws.forEach(await (async function (item) {
         var found = false;
+        var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
+
+        var fwbrcp = fwbr;
+
         self.fwbranches.forEach(function (names) {
-          console.log(names)
-          if(names.name.startsWith(item.name)) {
-            found = true;
+          var fwbrcopy = fwbr;
+
+          if ((fwbrcopy.artifacts.length > 0) && !(typeof names === 'undefined')) {
+            console.log("Found Valid Branch");
+            console.log(fwbrcopy);
+            if(names.name.startsWith(fwbrcopy.artifacts[0].name)) {
+              found = true;
+            }
           }
         });
 
         if (!found) {
-          self.fwbranches.push(item);
+          if (typeof fwbrcp.artifacts[0] !== 'undefined') {
+            self.fwbranches.push(fwbrcp.artifacts[0]);
+          }
+          console.log(self.fwbranches);
         }
-      });
+      }));
     },
 
     async updateVersions() {
@@ -356,12 +367,16 @@ export default {
       self.fwversions = [];
       self.noPopulatedInfo = true;
 
-      fws.forEach(function (item) {
-        console.log([item.name, self.currbr])
-        if (item.name == self.currbr) {
-          self.fwversions.push(item);
+      fws.forEach(await (async function (item) {
+        var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
+
+        if (fwbr.artifacts.length > 0) {
+          if (fwbr.artifacts[0].name == self.currbr) {
+            fwbr.artifacts[0].commitId = item.head_commit.id.slice(0, 7);
+            self.fwversions.push(fwbr.artifacts[0]);
+          }
         }
-      });
+      }));
     },
   },
 

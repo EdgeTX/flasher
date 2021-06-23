@@ -5,8 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
-//const nodeDiskInfo = require('@ekristoffe/node-disk-info');
-
+ 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
@@ -70,6 +69,7 @@ app.on('ready', async () => {
   }
   createWindow()
 })
+
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

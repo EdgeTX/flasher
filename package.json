@@ -38,6 +38,7 @@
     "original-fs": "^1.1.0",
     "sass": "^1.32.0",
     "sass-loader": "^10.0.0",
+    "systeminformation": "^5.7.7",
     "vue-cli-plugin-electron-builder": "*",
     "vue-cli-plugin-vuetify": "~2.4.0",
     "vue-template-compiler": "^2.6.11",
