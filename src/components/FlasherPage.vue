@@ -25,7 +25,7 @@
             :items="fwversions"
             v-model="currfw"
             item-text="created_at"
-            item-value="id"
+            return-object
             label="Firmware Version"
             class="rounded"
             solo
@@ -182,12 +182,12 @@ export default {
       self.message = "Downloading metadata...";
       self.noPopulatedInfo = true;
 
-      var indexdat = await fwbranch.downloadMetadata(self.currfw, fwbranch.defaultRepo);
+      var indexdat = await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo);
       console.log(indexdat);
 
       if (indexdat != "") {
         self.targets = indexdat.targets;
-        self.changelog = indexdat.changelog;
+        self.changelog = self.currfw.commitMsg;
         self.currtr = indexdat.targets[0][1];
         self.noPopulatedInfo = false;
 
@@ -277,7 +277,7 @@ export default {
       self.message = "Downloading bin...";
        
       // eslint-disable-next-line no-unused-vars
-      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
+      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo);
       self.dialog = false;
 
       var tmpPath = path.join(remote.app.getPath('userData'), "flash.bin");
@@ -318,13 +318,13 @@ export default {
       self.dialog = true;
       self.message = "Downloading bin...";
 
-      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw, fwbranch.defaultRepo);
+      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo);
 
       self.message = "Creating binary package...";
       const element = document.createElement("a");
       const file = new Blob([Uint8Array.from(fwbin).buffer], {type: "text/plain"});
       element.href = URL.createObjectURL(file);
-      element.download = self.currtr + "edgetx-"+self.currfw+".bin";
+      element.download = self.currtr + "edgetx-"+self.currfw.id+".bin";
       element.click();
 
       self.dialog = false;
@@ -369,10 +369,12 @@ export default {
 
       fws.forEach(await (async function (item) {
         var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
-
+        console.log("ffff")
+        console.log(item);
         if (fwbr.artifacts.length > 0) {
           if (fwbr.artifacts[0].name == self.currbr) {
             fwbr.artifacts[0].commitId = item.head_commit.id.slice(0, 7);
+            fwbr.artifacts[0].commitMsg = item.head_commit.message;
             self.fwversions.push(fwbr.artifacts[0]);
           }
         }
