@@ -56,7 +56,7 @@
             <v-expansion-panel>
               <v-expansion-panel-header>Select Disk</v-expansion-panel-header>
               <v-expansion-panel-content>
-                  <p>Please select the SD Card you want to write, please note this will overwrite all contents of the disk so make sure to select the correct one.</p>
+                  <p>Please select the SD Card you want to write, please note if the checkbox below is enabled this will overwrite all contents of the disk so make sure to select the correct one.</p>
 
                   <v-select
                     :items="disks"
@@ -74,6 +74,11 @@
                       {{ data.item.name }} ({{ data.item.label }})
                     </template>
                   </v-select>
+
+                    <v-checkbox
+                      v-model="erasemode"
+                      label="Erase Disk before Flashing"
+                    ></v-checkbox>
 
                   <v-btn
                     block
@@ -94,8 +99,8 @@
             block
             elevation="2"
             large
-            @click="displayResults"
-          >Download Package</v-btn>
+            @click="warndialog = true"
+          >Write to SD Card</v-btn>
         </v-sheet>
     </v-container>
 
@@ -123,6 +128,46 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-row justify="center">
+    <v-dialog
+      v-model="warndialog"
+      max-width="600"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Are you sure?
+        </v-card-title>
+
+        <v-card-text>
+          <span class="red--text">THIS WILL ERASE ALL CONTENTS OF THE SD CARD EXCEPT FOR MODELS AND RADIO SETTINGS.</span><br><br>
+
+          <b>Are you sure you want to continue?</b>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="primary"
+            text
+            @click="warndialog = false; displayResults();"
+          >
+            Continue
+          </v-btn>
+
+          <v-btn
+            color="white darken-1"
+            text
+            @click="warndialog = false"
+          >
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-row>
+
   </v-container>
 </template>
 
@@ -143,6 +188,7 @@ export default {
         readonly: false,
 
         dialogm: false,
+        warndialog: false,
         message: "Loading...",
         headingmsg: "Error",
         winready: false,
@@ -167,6 +213,7 @@ export default {
         ],
         voices: ["CZ", "DE", "EN", "ES", "FR", "IT", "PT", "RU"],
         disks: ["None"],
+        erasemode: true,
         diskSelect: {mount: ""},
         radioSelect: {},
         voiceSelect: ['EN']
@@ -183,8 +230,10 @@ export default {
           files.forEach(function(filename) {
             if (fs.statSync(pathx + "/" + filename).isDirectory()) {
               try {
-                self.removeDir(path.join(pathx, filename))
-                fs.rmdirSync(path.join(pathx, filename), { recursive: true });
+                if ((filename != "RADIO") && (filename != "MODELS")) {
+                  self.removeDir(path.join(pathx, filename))
+                  fs.rmdirSync(path.join(pathx, filename), { recursive: true });
+                }
               } catch (error) {
                 console.log(error);
               }
@@ -219,12 +268,21 @@ export default {
       }
     },
 
-    async displayResults() {
-      var self = this;
+    async openDisplayDialog(self) {
       self.headingmsg = "Preparing SD Card"
       self.message = "Fetching index...<br>";
       self.dialogm = true;
       self.winready = true;
+    },
+
+    async scrollDialog() {
+      let element = document.getElementById("containerbox");
+      element.scrollIntoView({behavior: "smooth", block: "end"});
+    },
+
+    async displayResults() {
+      var self = this;
+      self.openDisplayDialog(self);
 
       var sddir = "";
       if (fs.existsSync(self.diskSelect.mount)) {
@@ -240,8 +298,10 @@ export default {
         return;
       }
       
-      self.message += "Erasing card....<br>";
-      self.removeDir(sddir);
+      if (self.erasemode) {
+        self.message += "Erasing card....<br>";
+        self.removeDir(sddir);
+      }
 
       var sdreleases = await fwbranch.listReleases(fwbranch.sdCardRepo);
       self.message += "Filtering releases...<br>";
@@ -272,6 +332,8 @@ export default {
           zip.extractEntryTo(zipEntry.entryName, xpath, false, /*overwrite*/ true);
       });
 
+      self.scrollDialog();
+
       self.message += "Fetching sound pack index...<br>";
       var voicereleases = await fwbranch.listReleases(fwbranch.voiceRepo);
 
@@ -286,6 +348,8 @@ export default {
 
       var finishedvp = 0;
       voiceurls.forEach(async function(vurl, index, array){
+        self.scrollDialog();
+        self.message += `Downloading voicepack ${vurl.name}...<br>`;
         const voicebody = await axios.get(vurl.browser_download_url, {
             responseType: 'arraybuffer',
         });
@@ -293,7 +357,7 @@ export default {
         var vzip = new AdmZip(Buffer.from(voicebody.data));
         await vzip.extractAllTo(sddir, /*overwrite*/ false);
 
-        self.message += `Finished voicepack ${index}<br>`;
+        self.message += `Installed voicepack ${vurl.name}<br>`;
 
         finishedvp += 1;
 
@@ -301,6 +365,7 @@ export default {
           console.log("Finished loading");
           self.winready = false;
           self.message += `<br><b>Finished adding all packages, You may remove the disk now!</b><br>`;
+          self.scrollDialog();
         }
       });
     },
