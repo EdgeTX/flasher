@@ -281,6 +281,28 @@ export default {
     },
 
     writeSD() {
+      var self = this;
+      if (!self.targets.includes(self.radioSelect)) {
+        self.headingmsg = "Error"
+        self.message = "Please select a remote target before writing.";
+        self.dialogm = true;
+        self.winready = false;
+        
+        return;
+      }
+
+      if (fs.existsSync(self.diskSelect.mount)) {
+        console.log("Found disk");
+        console.log(self.diskSelect.mount);
+      } else {
+        self.headingmsg = "Error"
+        self.message = "Please select a valid disk, and ensure your transmitter is not in DFU mode.";
+        self.dialogm = true;
+        self.winready = false;
+
+        return;
+      }
+
       if (this.erasemode) {
         this.warndialog = true;
       } else {
@@ -292,19 +314,7 @@ export default {
       var self = this;
       self.openDisplayDialog(self);
 
-      var sddir = "";
-      if (fs.existsSync(self.diskSelect.mount)) {
-        console.log("Found disk");
-        console.log(self.diskSelect.mount);
-        sddir = self.diskSelect.mount;
-      } else {
-        self.headingmsg = "Error"
-        self.message = "Please select a valid disk, and ensure your transmitter is not in DFU mode.";
-        self.dialogm = true;
-        self.winready = false;
-
-        return;
-      }
+      var sddir = self.diskSelect.mount;
       
       if (self.erasemode) {
         self.message += "Erasing card....<br>";
