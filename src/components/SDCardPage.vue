@@ -299,7 +299,7 @@ export default {
         sddir = self.diskSelect.mount;
       } else {
         self.headingmsg = "Error"
-        self.message = "Please select a valid disk!";
+        self.message = "Please select a valid disk, and ensure your transmitter is not in DFU mode.";
         self.dialogm = true;
         self.winready = false;
 
