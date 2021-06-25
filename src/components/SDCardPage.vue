@@ -338,7 +338,7 @@ export default {
 
       self.message += "Decompressing structure package...<br>";
       var zip = new AdmZip(Buffer.from(body.data));
-      await zip.extractAllTo(sddir, /*overwrite*/ true);
+      zip.extractAllTo(sddir, /*overwrite*/ true);
 
       self.scrollDialog();
 
@@ -363,7 +363,7 @@ export default {
         });
 
         var vzip = new AdmZip(Buffer.from(voicebody.data));
-        await vzip.extractAllTo(sddir, /*overwrite*/ false);
+        vzip.extractAllTo(sddir, /*overwrite*/ false);
 
         self.message += `Installed voicepack ${vurl.name}<br>`;
 
