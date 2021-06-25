@@ -39,6 +39,7 @@ jobs:
       run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-nightly.${{ matrix.binary_ending }}
 
     - name: Upload binaries to release
+      if: github.event_name != 'pull_request'
       uses: svenstaro/upload-release-action@v2
       with:
         overwrite: true
