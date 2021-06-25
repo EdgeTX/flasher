@@ -338,7 +338,7 @@ export default {
 
       self.message += "Decompressing structure package...<br>";
       var zip = new AdmZip(Buffer.from(body.data));
-      zip.extractAllTo(sddir, /*overwrite*/ true);
+      await zip.extractAllTo(sddir, /*overwrite*/ true);
 
       self.scrollDialog();
 
