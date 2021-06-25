@@ -338,17 +338,7 @@ export default {
 
       self.message += "Decompressing structure package...<br>";
       var zip = new AdmZip(Buffer.from(body.data));
-      var zipEntries = zip.getEntries(); // an array of ZipEntry records
-
-      self.message += "Moving to SD Card... (Please do not unplug now)<br>";
-      zipEntries.forEach(function (zipEntry) {
-          var xpath = path.join(sddir, zipEntry.entryName.substring(zipEntry.entryName.indexOf('/') + 1));
-          if (!zipEntry.isDirectory) {
-            xpath = xpath.substring(0, xpath.lastIndexOf(path.sep))
-          }
-
-          zip.extractEntryTo(zipEntry.entryName, xpath, false, /*overwrite*/ true);
-      });
+      zip.extractAllTo(sddir, /*overwrite*/ true);
 
       self.scrollDialog();
 
