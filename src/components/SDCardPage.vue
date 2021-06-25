@@ -99,7 +99,7 @@
             block
             elevation="2"
             large
-            @click="warndialog = true"
+            @click="writeSD()"
           >Write to SD Card</v-btn>
         </v-sheet>
     </v-container>
@@ -278,6 +278,14 @@ export default {
     async scrollDialog() {
       let element = document.getElementById("containerbox");
       element.scrollIntoView({behavior: "smooth", block: "end"});
+    },
+
+    writeSD() {
+      if (this.erasemode) {
+        this.warndialog = true;
+      } else {
+        this.displayResults();
+      }
     },
 
     async displayResults() {
