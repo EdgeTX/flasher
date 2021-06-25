@@ -334,7 +334,7 @@ export default {
       zipEntries.forEach(function (zipEntry) {
           var xpath = path.join(sddir, zipEntry.entryName.substring(zipEntry.entryName.indexOf('/') + 1));
           if (!zipEntry.isDirectory) {
-            xpath = xpath.substring(0, xpath.lastIndexOf("/"))
+            xpath = xpath.substring(0, xpath.lastIndexOf(path.sep))
           }
 
           zip.extractEntryTo(zipEntry.entryName, xpath, false, /*overwrite*/ true);
