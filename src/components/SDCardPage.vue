@@ -230,7 +230,7 @@ export default {
           files.forEach(function(filename) {
             if (fs.statSync(pathx + "/" + filename).isDirectory()) {
               try {
-                if ((filename != "RADIO") && (filename != "MODELS")) {
+                if ((filename != "RADIO") && (filename != "MODELS") && (filename != "EEPROM")) {
                   self.removeDir(path.join(pathx, filename))
                   fs.rmdirSync(path.join(pathx, filename), { recursive: true });
                 }
