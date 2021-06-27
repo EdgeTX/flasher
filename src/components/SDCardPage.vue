@@ -260,7 +260,7 @@ export default {
         si.blockDevices().then(function(data){
           console.log(data)
           self.disks = data.filter(function (el) {
-            return el.removable && (el.label != "") && (el.mount != "")
+            return el.removable && (el.mount != "")
           });
         }).catch(error => console.error(error));
       } catch (e) {
