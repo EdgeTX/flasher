@@ -56,7 +56,7 @@
             <v-expansion-panel>
               <v-expansion-panel-header>Select Disk</v-expansion-panel-header>
               <v-expansion-panel-content>
-                  <p>Please select the SD Card you want to write, please note if the checkbox below is enabled this will overwrite all contents of the disk so make sure to select the correct one.</p>
+                  <p>Please select the drive letter for your SD Card. The SD card <span style="text-decoration:underline; color: red">will be erased</span> (except for model and radio settings) unless you untick the Erase option below, so make sure to select the correct one!</p>
 
                   <v-select
                     :items="disks"
