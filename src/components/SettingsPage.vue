@@ -7,15 +7,9 @@
             <v-switch
               v-model="advancedFlash"
               inset
-              label="Advanced Mode (Show all options)"
+              label="Advanced Mode (Show all versions, not just tags)"
               @change="updateProps()"
             ></v-switch>
-            <!--<v-switch
-              v-model="alphaRelease"
-              inset
-              label="Show Unstable Releases"
-              @change="updateProps()"
-            ></v-switch>-->
           </v-sheet>
         </v-sheet>
 
@@ -58,7 +52,6 @@ export default {
   data () {
       return {
         advancedFlash: this.$store.getters.getOptions.advancedFlash,
-        alphaRelease: this.$store.getters.getOptions.alphaRelease,
         themeSwitch: this.$store.getters.getOptions.themeSwitch,
         defaultDir: this.$store.getters.getOptions.defaultDir
       }
@@ -74,7 +67,6 @@ export default {
     updateProps() {
       this.$store.commit('update', {
         advancedFlash: this.advancedFlash,
-        alphaRelease: this.alphaRelease,
         themeSwitch: this.themeSwitch,
         defaultDir: this.defaultDir
       })

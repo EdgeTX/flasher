@@ -9,8 +9,7 @@ export default new Vuex.Store({
     state: {
         options: {
             // Flasher Settings
-            displayAlpha: false,
-            advancedFlash: true,
+            advancedFlash: false,
 
             // Backup Settings
             defaultDir: "",

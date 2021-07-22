@@ -32,10 +32,10 @@
             @change="updateContent"
           >
             <template slot="selection" slot-scope="data">
-              #{{ data.item.commitId }} ({{ data.item.created_at }})
+              {{ data.item.commitId }} ({{ data.item.created_at }})
             </template>
             <template slot="item" slot-scope="data">
-              #{{ data.item.commitId }} ({{ data.item.created_at }})
+              {{ data.item.commitId }} ({{ data.item.created_at }})
             </template>
           </v-select>
 
@@ -76,7 +76,7 @@
               large
               @click="flashFw"
               :disabled="noPopulatedInfo"
-          >Write</v-btn>
+          >Flash Radio Firmware</v-btn>
 
           <v-btn
               class="mt-4"
@@ -182,7 +182,8 @@ export default {
       self.message = "Downloading metadata...";
       self.noPopulatedInfo = true;
 
-      var indexdat = await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo);
+      var indexdat = (this.$store.getters.getOptions.advancedFlash == false) ? (await fwbranch.downloadReleaseMetadata(self.currfw.bdurl)) : (await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo))
+
       console.log(indexdat);
 
       if (indexdat != "") {
@@ -271,13 +272,12 @@ export default {
     },
 
     async flashFw() {
-
       var self = this;
       self.dialog = true;
       self.message = "Downloading bin...";
        
       // eslint-disable-next-line no-unused-vars
-      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo);
+      var fwbin = (this.$store.getters.getOptions.advancedFlash == false) ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
       self.dialog = false;
 
       var tmpPath = path.join(remote.app.getPath('userData'), "flash.bin");
@@ -318,7 +318,7 @@ export default {
       self.dialog = true;
       self.message = "Downloading bin...";
 
-      var fwbin = await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo);
+      var fwbin = (this.$store.getters.getOptions.advancedFlash == false) ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
 
       self.message = "Creating binary package...";
       const element = document.createElement("a");
@@ -361,29 +361,53 @@ export default {
       }));
     },
 
+    async updateTags (){
+      this.fwbranches.push({name: "Releases"});
+    },
+
     async updateVersions() {
       var self = this;
-      var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
-      self.fwversions = [];
-      self.noPopulatedInfo = true;
 
-      fws.forEach(await (async function (item) {
-        var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
-        console.log("ffff")
-        console.log(item);
-        if (fwbr.artifacts.length > 0) {
-          if (fwbr.artifacts[0].name == self.currbr) {
-            fwbr.artifacts[0].commitId = item.head_commit.id.slice(0, 7);
-            fwbr.artifacts[0].commitMsg = item.head_commit.message;
-            self.fwversions.push(fwbr.artifacts[0]);
+      if (this.$store.getters.getOptions.advancedFlash == false){
+        // Sort by tags
+        var tags = await fwbranch.indexTags(fwbranch.defaultRepo);
+
+        tags.forEach(await (async function (item) {
+          self.fwversions.push({
+            commitId: item.tag_name,
+            commitMsg: item.body,
+            id: item.tag_name,
+            created_at: item.created_at,
+            bdurl: item.assets[0].browser_download_url
+          });
+        }));
+      } else {
+        // Sort by branches
+        var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
+        self.fwversions = [];
+        self.noPopulatedInfo = true;
+
+        fws.forEach(await (async function (item) {
+          var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
+
+          if (fwbr.artifacts.length > 0) {
+            if (fwbr.artifacts[0].name == self.currbr) {
+              fwbr.artifacts[0].commitId = "#"+item.head_commit.id.slice(0, 7);
+              fwbr.artifacts[0].commitMsg = item.head_commit.message;
+              self.fwversions.push(fwbr.artifacts[0]);
+            }
           }
-        }
-      }));
+        }));
+      }
     },
   },
 
   created() {
-    this.updateBranches()
+    if (this.$store.getters.getOptions.advancedFlash) {
+      this.updateBranches()
+    } else {
+      this.updateTags()
+    }
   }
 }
 </script>

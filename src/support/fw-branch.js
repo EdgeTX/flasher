@@ -1,5 +1,6 @@
 const { Octokit } = require("@octokit/core");
 const AdmZip = require('adm-zip');
+const axios = require('axios');
 //const { createAppAuth, createOAuthUserAuth } = require("@octokit/auth-app");
 
 // Repo Definitions....
@@ -47,6 +48,26 @@ async function downloadArtifact(firmwareFile, artifact, repoInfo) {
     return bufferFW;
 }
 
+async function downloadFwRelease(firmwareFile, bdurl) {
+    const artifactzip = await axios.get(bdurl, {
+        responseType: 'arraybuffer',
+    });
+
+    var zip = new AdmZip(Buffer.from(artifactzip.data));
+    var zipEntries = zip.getEntries();
+
+    var bufferFW;
+
+    zipEntries.forEach((entry) => {
+        if (entry.entryName.startsWith(firmwareFile)) {
+            bufferFW = entry.getData()
+        }
+    });
+
+    return bufferFW;
+}
+
+
 // eslint-disable-next-line no-unused-vars
 async function downloadMetadata(artifact, repoInfo) {
     const octokit = new Octokit({
@@ -76,6 +97,26 @@ async function downloadMetadata(artifact, repoInfo) {
     return indexdata;
 }
 
+async function downloadReleaseMetadata(bdurl) {
+    const artifactzip = await axios.get(bdurl, {
+        responseType: 'arraybuffer',
+    });
+
+    var zip = new AdmZip(Buffer.from(artifactzip.data));
+    var zipEntries = zip.getEntries();
+
+    var indexdata = "";
+    console.log("Loading zip entries...");
+
+    zipEntries.forEach((entry) => {
+        if (entry.entryName == "fw.json") {
+            indexdata = JSON.parse(entry.getData().toString('utf8'));
+        }
+    });
+
+    return indexdata;
+}
+
 async function indexArtifacts(repoInfo) {
     const octokit = new Octokit({
         auth: repoInfo.authKey
@@ -86,11 +127,22 @@ async function indexArtifacts(repoInfo) {
         repo: repoInfo.repo,
     })
 
-    //console.log(artifacts.data.artifacts);
-    console.log(artifacts.data.workflow_runs);
-
     //return artifacts.data.artifacts;
     return artifacts.data.workflow_runs;
+}
+
+async function indexTags(repoInfo) {
+    const octokit = new Octokit({
+        auth: repoInfo.authKey
+    });
+
+    const releases = await octokit.request('GET /repos/{owner}/{repo}/releases', { //GET /repos/{owner}/{repo}/actions/artifacts', {
+        owner: repoInfo.owner,
+        repo: repoInfo.repo,
+    })
+
+    //return artifacts.data.artifacts;
+    return releases.data;
 }
 
 async function branchArtifact(repoInfo, repourl) {
@@ -117,10 +169,13 @@ async function listReleases(repoInfo) {
 }
 
 exports.downloadArtifact = downloadArtifact;
+exports.downloadFwRelease = downloadFwRelease;
 exports.indexArtifacts = indexArtifacts;
 exports.downloadMetadata = downloadMetadata;
 exports.branchArtifact = branchArtifact;
 exports.listReleases = listReleases;
+exports.indexTags = indexTags;
+exports.downloadReleaseMetadata = downloadReleaseMetadata;
 
 exports.defaultRepo = defaultRepo;
 exports.voiceRepo = voiceRepo;
