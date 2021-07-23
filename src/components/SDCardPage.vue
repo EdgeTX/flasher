@@ -213,7 +213,7 @@ export default {
         ],
         voices: ["CZ", "DE", "EN", "ES", "FR", "IT", "PT", "RU"],
         disks: ["None"],
-        erasemode: true,
+        erasemode: false,
         diskSelect: {mount: ""},
         radioSelect: {},
         voiceSelect: ['EN']

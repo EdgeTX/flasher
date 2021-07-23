@@ -11,7 +11,15 @@
           <br><br>
 
           <div class="mt-10 mr-6 ml-6">
-          The new alternative to OpenTX Companion for updating radio firmware and optimizing backups. To change the theme or other options, go to the settings tab.
+          The new alternative to OpenTX Companion for updating radio firmware and setting up your SD Card. To change the theme or other options, go to the settings tab.
+
+          <br><br>
+          For more info and help, visit our Github Wiki:
+          <a 
+            target="popup" 
+            onclick="window.open('https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide','popup','width=700,height=700'); return false;"
+          >https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide</a>
+
           </div>
         </v-row>
       </v-container>

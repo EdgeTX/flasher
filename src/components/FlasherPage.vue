@@ -362,7 +362,7 @@ export default {
     },
 
     async updateTags (){
-      this.fwbranches.push({name: "Releases"});
+      this.fwbranches.push({name: "releases"});
     },
 
     async updateVersions() {
@@ -371,8 +371,11 @@ export default {
       if (this.$store.getters.getOptions.advancedFlash == false){
         // Sort by tags
         var tags = await fwbranch.indexTags(fwbranch.defaultRepo);
+        var ltimestamp = tags[0].created_at;
 
         tags.forEach(await (async function (item) {
+          ltimestamp = (new Date(ltimestamp.created_at) < new Date(item.created_at)) ? item : ltimestamp;
+
           self.fwversions.push({
             commitId: item.tag_name,
             commitMsg: item.body,
@@ -381,6 +384,8 @@ export default {
             bdurl: item.assets[0].browser_download_url
           });
         }));
+
+        self.currfw = ltimestamp;
       } else {
         // Sort by branches
         var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
@@ -389,7 +394,6 @@ export default {
 
         fws.forEach(await (async function (item) {
           var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
-
           if (fwbr.artifacts.length > 0) {
             if (fwbr.artifacts[0].name == self.currbr) {
               fwbr.artifacts[0].commitId = "#"+item.head_commit.id.slice(0, 7);
