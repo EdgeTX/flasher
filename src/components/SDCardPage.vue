@@ -56,7 +56,11 @@
             <v-expansion-panel>
               <v-expansion-panel-header>Select Disk</v-expansion-panel-header>
               <v-expansion-panel-content>
-                  <p>Please select the drive letter for your SD Card. The SD card <span style="text-decoration:underline; color: red">will be erased</span> (except for model and radio settings) unless you untick the Erase option below, so make sure to select the correct one!</p>
+                  <p>
+                    Please select the drive letter for your SD Card. 
+                    <br><br>
+                    By ticking the "Erase Disk before Flashing" option, you can clean your SD card (except for model and radio settings), which is recommended. <span style="font-weight:bold; color: red">Be extra careful with this option and double check that you select the correct drive!</span>
+                  </p>
 
                   <v-select
                     :items="disks"

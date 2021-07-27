@@ -182,7 +182,7 @@ export default {
       self.message = "Downloading metadata...";
       self.noPopulatedInfo = true;
 
-      var indexdat = (this.$store.getters.getOptions.advancedFlash == false) ? (await fwbranch.downloadReleaseMetadata(self.currfw.bdurl)) : (await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo))
+      var indexdat = (self.currbr == "releases") ? (await fwbranch.downloadReleaseMetadata(self.currfw.bdurl)) : (await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo))
 
       console.log(indexdat);
 
@@ -208,6 +208,10 @@ export default {
     },
 
     dfuUtil(dfuargs) {
+        var ignoreMsgs = [
+          "dfu-util: Invalid DFU suffix signature",
+          "dfu-util: A valid DFU suffix will be required in a future dfu-util release!!!"
+        ];
         var self = this;
         var platformstatus = ""; 
         const dfuPath = path.dirname(remote.app.getAppPath());
@@ -236,6 +240,8 @@ export default {
             var dfucmd = require('child_process').execFile(platformstatus, dfuargs); 
 
             dfucmd.stdout.on('data', (data) => {
+              if (ignoreMsgs.includes(data)) return; 
+
               self.headingmsg = "Flashing..."
               self.dialog = false;
               self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
@@ -248,6 +254,8 @@ export default {
             });
 
             dfucmd.stderr.on('data', (data) => {
+              if (ignoreMsgs.includes(data)) return; 
+
               self.headingmsg = "Flashing..."
               self.dialog = false;
               self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
@@ -277,7 +285,7 @@ export default {
       self.message = "Downloading bin...";
        
       // eslint-disable-next-line no-unused-vars
-      var fwbin = (this.$store.getters.getOptions.advancedFlash == false) ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
+      var fwbin = (self.currbr == "releases") ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
       self.dialog = false;
 
       var tmpPath = path.join(remote.app.getPath('userData'), "flash.bin");
@@ -318,7 +326,7 @@ export default {
       self.dialog = true;
       self.message = "Downloading bin...";
 
-      var fwbin = (this.$store.getters.getOptions.advancedFlash == false) ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
+      var fwbin = (self.currbr == "releases") ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
 
       self.message = "Creating binary package...";
       const element = document.createElement("a");
@@ -368,9 +376,11 @@ export default {
     async updateVersions() {
       var self = this;
 
-      if (this.$store.getters.getOptions.advancedFlash == false){
+      if (self.currbr == "releases"){
         // Sort by tags
         var tags = await fwbranch.indexTags(fwbranch.defaultRepo);
+        self.fwversions = [];
+        self.noPopulatedInfo = true;
         var ltimestamp = tags[0].created_at;
 
         tags.forEach(await (async function (item) {
@@ -409,6 +419,7 @@ export default {
   created() {
     if (this.$store.getters.getOptions.advancedFlash) {
       this.updateBranches()
+      this.updateTags()
     } else {
       this.updateTags()
     }

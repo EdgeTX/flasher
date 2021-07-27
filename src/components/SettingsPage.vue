@@ -2,7 +2,7 @@
       <v-container>
 
         <v-sheet class="pt-1 pl-1 rounded">
-          <p class="h6 font-weight-bold pt-1 pl-2">Flasher/Config Settings</p>
+          <p class="h6 font-weight-bold pt-1 pl-2">Flasher Settings</p>
           <v-sheet class="pl-5">
             <v-switch
               v-model="advancedFlash"

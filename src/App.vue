@@ -21,7 +21,7 @@
               <v-icon>mdi-code-array</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Flash</v-list-item-title>
+              <v-list-item-title>Flash Firmware</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -30,7 +30,7 @@
               <v-icon>mdi-database-arrow-right</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>SD Card</v-list-item-title>
+              <v-list-item-title>Setup SD Card</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 

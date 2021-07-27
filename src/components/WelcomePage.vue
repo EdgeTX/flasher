@@ -16,8 +16,8 @@
           <br><br>
           For more info and help, visit our Github Wiki:
           <a 
-            target="popup" 
-            onclick="window.open('https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide','popup','width=700,height=700'); return false;"
+            target="_blank" 
+            href="javascript:electronLink('https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide')"
           >https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide</a>
 
           </div>
@@ -44,7 +44,8 @@ export default {
 
   methods: {
     electronLink(addr) {
-      require("electron").shell.openExternal(addr);
+      //require("electron").shell.openExternal(addr);
+      require('shell').openExternal(addr);
     }
   }
 }
