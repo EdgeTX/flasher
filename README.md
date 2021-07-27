@@ -10,8 +10,9 @@ Check the releases section for prebuilt rolling-release binaries for the flasher
 - Downloading firmware and saving
 - Themeing and Persistent config storage
 - DFU Flashing
-## In-Progress Features
 - SD Card automated downloads and setups
+
+## In-Progress Features
 - YAML Configuration Interface
 - SD Card and DFU Backup
 
