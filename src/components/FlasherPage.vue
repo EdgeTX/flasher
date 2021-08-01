@@ -184,6 +184,8 @@ export default {
 
       var indexdat = (self.currbr == "releases") ? (await fwbranch.downloadReleaseMetadata(self.currfw.bdurl)) : (await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo))
 
+      self.dialog = false;
+
       tmplog.addLog({
         type: "updateContent.data.indexdat",
         msg: JSON.stringify(indexdat)
@@ -210,8 +212,6 @@ export default {
           msg: "Metadata not found, error showing."
         });
       }
-
-      self.dialog = false;
     },
 
     updateSw(swvalue) {
@@ -220,8 +220,8 @@ export default {
 
     dfuUtil(dfuargs) {
         var ignoreMsgs = [
-          "dfu-util: Invalid DFU suffix signature",
-          "dfu-util: A valid DFU suffix will be required in a future dfu-util release!!!"
+          "Invalid DFU suffix signature",
+          "A valid DFU suffix will be required in a future dfu-util release!!!"
         ];
         var self = this;
         var platformstatus = ""; 
@@ -275,7 +275,7 @@ export default {
             });
 
             dfucmd.stderr.on('data', (data) => {
-              if (ignoreMsgs.includes(data)) return; 
+              if (ignoreMsgs.includes(data)) data = "\n"; 
 
               self.headingmsg = "Flashing..."
               self.dialog = false;

@@ -59,6 +59,15 @@
               large
               @click="clearLog"
             >Clear Log</v-btn>
+
+            <v-btn
+              class="mt-4"
+              color="primary"
+              block
+              elevation="2"
+              large
+              @click="copyClipboard"
+            >Copy to clipboard</v-btn>
           </v-sheet>
         </v-sheet>
 
@@ -68,6 +77,7 @@
 
 <script>
 const tmplog = require("../support/tmplog.js");
+const {clipboard} = require('electron')
 
 export default {
   name: 'SettingsPage',
@@ -86,6 +96,10 @@ export default {
       this.$vuetify.theme.dark = this.themeSwitch;
       //this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
       this.updateProps()
+    },
+
+    copyClipboard() {
+      clipboard.writeText(this.logText, 'selection')
     },
 
     updateProps() {
