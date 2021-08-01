@@ -262,7 +262,11 @@ export default {
             var dfucmd = require('child_process').execFile(platformstatus, dfuargs); 
 
             dfucmd.stdout.on('data', (data) => {
-              if (ignoreMsgs.includes(data)) return; 
+              var ign = ignoreMsgs.filter(function (item) {
+                return data.includes(item);
+              });
+              if (ign.length > 0) data="\n";
+
 
               self.headingmsg = "Flashing..."
               self.dialog = false;
@@ -275,7 +279,7 @@ export default {
             });
 
             dfucmd.stderr.on('data', (data) => {
-              if (ignoreMsgs.includes(data)) data = "\n"; 
+              if (ignoreMsgs.includes(data)) return; 
 
               self.headingmsg = "Flashing..."
               self.dialog = false;

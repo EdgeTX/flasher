@@ -112,7 +112,7 @@ export default {
 
     clearLog() {
       tmplog.setLog([]);
-      this.$router.go();
+      this.logText = tmplog.getFormattedLog();
     }
   }
 }
