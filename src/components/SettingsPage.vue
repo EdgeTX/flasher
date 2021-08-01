@@ -67,6 +67,7 @@
 </template>
 
 <script>
+const tmplog = require("../support/tmplog.js");
 
 export default {
   name: 'SettingsPage',
@@ -76,7 +77,7 @@ export default {
         advancedFlash: this.$store.getters.getOptions.advancedFlash,
         themeSwitch: this.$store.getters.getOptions.themeSwitch,
         defaultDir: this.$store.getters.getOptions.defaultDir,
-        logText: this.$store.getters.getFormattedLog
+        logText: tmplog.getFormattedLog()
       }
   },
 
@@ -96,7 +97,8 @@ export default {
     },
 
     clearLog() {
-      this.$store.commit('setLog', []);
+      tmplog.setLog([]);
+      this.$router.go();
     }
   }
 }

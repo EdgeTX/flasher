@@ -141,6 +141,7 @@
 <script>
 var commandExistsSync = require('command-exists').sync;
 const fwbranch = require("../support/fw-branch.js");
+const tmplog = require("../support/tmplog.js");
 const fs = require('fs')
 const path = require('path')
 const {remote} = require("electron")
@@ -183,7 +184,7 @@ export default {
 
       var indexdat = (self.currbr == "releases") ? (await fwbranch.downloadReleaseMetadata(self.currfw.bdurl)) : (await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo))
 
-      this.$store.commit('addLog', {
+      tmplog.addLog({
         type: "updateContent.data.indexdat",
         msg: JSON.stringify(indexdat)
       })
@@ -194,7 +195,7 @@ export default {
         self.currtr = indexdat.targets[0][1];
         self.noPopulatedInfo = false;
 
-        this.$store.commit('addLog', {
+        tmplog.addLog('addLog', {
           type: "updateContent.message",
           msg: "Metadata found, changelog has been updated."
         })
@@ -204,10 +205,10 @@ export default {
         self.noPopulatedInfo = true;
         self.targets = [];
 
-        this.$store.commit('addLog', {
+        tmplog.addLog({
           type: "updateContent.message",
           msg: "Metadata not found, error showing."
-        })
+        });
       }
 
       self.dialog = false;
@@ -227,25 +228,25 @@ export default {
         const dfuPath = path.dirname(remote.app.getAppPath());
 
         if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/win64/")).isDirectory()) {
-            this.$store.commit('addLog', {
+            tmplog.addLog({
               type: "dfuUtil.message",
               msg: "Found DFU Util for Windows, path set."
             })
             platformstatus = path.join(dfuPath, "../src/support/dfu-util/win64/", "dfu-util.exe").replace(/(\s+)/g, '\\$1');
         } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/darwin/")).isDirectory()) { // working method
-            this.$store.commit('addLog', {
+            tmplog.addLog({
               type: "dfuUtil.message",
               msg: "Found DFU Util for MacOS, path set."
             })
             platformstatus = path.join(dfuPath, "../src/support/dfu-util/darwin/", "dfu-util").replace(/(\s+)/g, '\\$1');
         } else if (process.platform == "linux" && commandExistsSync("dfu-util")) { // working method
-            this.$store.commit('addLog', {
+            tmplog.addLog({
               type: "dfuUtil.message",
               msg: "Found DFU Util for Linux, system binary path set."
             })
             platformstatus = "dfu-util";
         } else {
-            this.$store.commit('addLog', {
+            tmplog.addLog({
               type: "dfuUtil.message",
               msg: "No DFU binary found, could be a missing package. System: "+process.platform
             })
@@ -317,7 +318,7 @@ export default {
           self.dialogm = true;
           return;
         }
-        this.$store.commit('addLog', {
+        tmplog.addLog({
           type: "flashFw.message",
           msg: "Firmware file cache deleted"
         })
@@ -332,7 +333,7 @@ export default {
               
             return;
           }
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "flashFw.message",
             msg: "Start DFU Util binary..."
           })
@@ -375,11 +376,11 @@ export default {
           var fwbrcopy = fwbr;
 
           if ((fwbrcopy.artifacts.length > 0) && !(typeof names === 'undefined')) {
-            this.$store.commit('addLog', {
+            tmplog.addLog({
               type: "updateBranches.message",
               msg: "Found valid branch data"
             })
-            this.$store.commit('addLog', {
+            tmplog.addLog({
               type: "updateBranches.data",
               msg: JSON.stringify(fwbrcopy)
             })
@@ -395,11 +396,11 @@ export default {
             self.fwbranches.push(fwbrcp.artifacts[0]);
           }
 
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "updateBranches.message",
             msg: "Found multiple valid branches"
           })
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "updateBranches.data",
             msg: JSON.stringify(self.fwbranches)
           })
@@ -455,7 +456,7 @@ export default {
   },
 
   created() {
-    this.$store.commit('addLog', {
+    tmplog.addLog({
       type: "created.message",
       msg: "Instance created, loading info from GH API"
     })
