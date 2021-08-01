@@ -181,6 +181,7 @@ const fwbranch = require("../support/fw-branch.js");
 const axios = require('axios');
 const AdmZip = require('adm-zip');
 var path = require('path');
+const tmplog = require("../support/tmplog.js");
 const fs = require('fs');
 
 export default {
@@ -239,7 +240,7 @@ export default {
                   fs.rmdirSync(path.join(pathx, filename), { recursive: true });
                 }
               } catch (error) {
-                this.$store.commit('addLog', {
+                tmplog.addLog({
                   type: "removeDir.message.error",
                   msg: error
                 });
@@ -248,7 +249,7 @@ export default {
               try {
                 fs.unlinkSync(path.join(pathx, filename))
               } catch (error) {
-                this.$store.commit('addLog', {
+                tmplog.addLog({
                   type: "removeDir.message.error",
                   msg: error
                 })
@@ -256,7 +257,7 @@ export default {
             }
           })
         } else {
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "removeDir.message",
             msg: "No files found in the directory."
           })
@@ -264,7 +265,7 @@ export default {
       } else {
         self.message += "Directory path not found."
 
-        this.$store.commit('addLog', {
+        tmplog.addLog({
           type: "removeDir.message",
           msg: "Directory path not found"
         })
@@ -276,11 +277,11 @@ export default {
         var self = this;
 
         si.blockDevices().then(function(data){
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "updateConfig.message",
             msg: "Scanned all block devices"
           })
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "updateConfig.data",
             msg: JSON.stringify(data)
           })
@@ -289,13 +290,13 @@ export default {
             return el.removable && (el.mount != "")
           });
         }).catch(function (err) {
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "updateConfig.message.error",
             msg: err
           })
         });
       } catch (e) {
-        this.$store.commit('addLog', {
+        tmplog.addLog({
           type: "updateConfig.message.error",
           msg: e
         })
@@ -325,12 +326,12 @@ export default {
       }
 
       if (fs.existsSync(self.diskSelect.mount)) {
-        this.$store.commit('addLog', {
+        tmplog.addLog({
           type: "writeSD.message",
           msg: "Found mounted disk at "+self.diskSelect.mount
         })
       } else {
-        this.$store.commit('addLog', {
+        tmplog.addLog({
           type: "writeSD.message",
           msg: "Please select a valid disk, none found. (msg shown)"
         })
@@ -408,7 +409,7 @@ export default {
         finishedvp += 1;
 
         if (finishedvp == (array.length)) {
-          this.$store.commit('addLog', {
+          tmplog.addLog({
             type: "displayResults.message",
             msg: "Finished adding all packages, disk may be removed!"
           })
