@@ -263,7 +263,7 @@ export default {
 
             dfucmd.stdout.on('data', (data) => {
               var ign = ignoreMsgs.filter(function (item) {
-                return data.includes(item);
+                return data.lower().includes(item.lower());
               });
               if (ign.length > 0) data="\n";
 
