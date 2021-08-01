@@ -4,6 +4,8 @@
       <br><br>
       Nothing here yet, coming in a future version once YAML support is added.
     </v-row>
+
+    
   </v-container>
 </template>
 
@@ -15,9 +17,9 @@ export default {
   name: 'YAMLConfiguration',
   
   data () {
-      return {
-        
-      }
+    return {
+      
+    }
   },
 
   methods: {

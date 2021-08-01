@@ -41,6 +41,28 @@
           </v-sheet>
         </v-sheet>
 
+        <br>
+
+        <v-sheet class="pt-1 pl-1 rounded">
+          <p class="h6 font-weight-bold pt-1 pl-2">Logging</p>
+          <v-sheet class="pl-5 pr-5 pb-5">
+            <v-textarea
+              v-model="logText"
+              readonly
+              style="font-weight: bold;"
+            ></v-textarea>
+            <v-btn
+              class="mt-4"
+              color="primary"
+              block
+              elevation="2"
+              large
+              @click="clearLog"
+            >Clear Log</v-btn>
+          </v-sheet>
+        </v-sheet>
+
+        <br>
       </v-container>
 </template>
 
@@ -53,7 +75,8 @@ export default {
       return {
         advancedFlash: this.$store.getters.getOptions.advancedFlash,
         themeSwitch: this.$store.getters.getOptions.themeSwitch,
-        defaultDir: this.$store.getters.getOptions.defaultDir
+        defaultDir: this.$store.getters.getOptions.defaultDir,
+        logText: this.$store.getters.getFormattedLog
       }
   },
 
@@ -70,6 +93,10 @@ export default {
         themeSwitch: this.themeSwitch,
         defaultDir: this.defaultDir
       })
+    },
+
+    clearLog() {
+      this.$store.commit('setLog', []);
     }
   }
 }

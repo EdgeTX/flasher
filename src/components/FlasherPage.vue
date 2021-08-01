@@ -171,7 +171,6 @@ export default {
 
   methods: {
     comparator(a, b) {
-      console.log(a, b);
       return a.id == b.id;
     },
 
@@ -184,7 +183,10 @@ export default {
 
       var indexdat = (self.currbr == "releases") ? (await fwbranch.downloadReleaseMetadata(self.currfw.bdurl)) : (await fwbranch.downloadMetadata(self.currfw.id, fwbranch.defaultRepo))
 
-      console.log(indexdat);
+      this.$store.commit('addLog', {
+        type: "updateContent.data.indexdat",
+        msg: JSON.stringify(indexdat)
+      })
 
       if (indexdat != "") {
         self.targets = indexdat.targets;
@@ -192,12 +194,20 @@ export default {
         self.currtr = indexdat.targets[0][1];
         self.noPopulatedInfo = false;
 
-        console.log("Changelog updated");
+        this.$store.commit('addLog', {
+          type: "updateContent.message",
+          msg: "Metadata found, changelog has been updated."
+        })
       } else {
         self.currtr = "";
         self.changelog = "Firmware does not contain any metadata, please try another revision."
         self.noPopulatedInfo = true;
         self.targets = [];
+
+        this.$store.commit('addLog', {
+          type: "updateContent.message",
+          msg: "Metadata not found, error showing."
+        })
       }
 
       self.dialog = false;
@@ -217,18 +227,29 @@ export default {
         const dfuPath = path.dirname(remote.app.getAppPath());
 
         if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/win64/")).isDirectory()) {
-            console.log("Prepared for Windows");
+            this.$store.commit('addLog', {
+              type: "dfuUtil.message",
+              msg: "Found DFU Util for Windows, path set."
+            })
             platformstatus = path.join(dfuPath, "../src/support/dfu-util/win64/", "dfu-util.exe").replace(/(\s+)/g, '\\$1');
-
         } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/darwin/")).isDirectory()) { // working method
-            console.log("Prepared for MacOS");
+            this.$store.commit('addLog', {
+              type: "dfuUtil.message",
+              msg: "Found DFU Util for MacOS, path set."
+            })
             platformstatus = path.join(dfuPath, "../src/support/dfu-util/darwin/", "dfu-util").replace(/(\s+)/g, '\\$1');
-
         } else if (process.platform == "linux" && commandExistsSync("dfu-util")) { // working method
-            console.log("Prepared for Linux");
+            this.$store.commit('addLog', {
+              type: "dfuUtil.message",
+              msg: "Found DFU Util for Linux, system binary path set."
+            })
             platformstatus = "dfu-util";
-
         } else {
+            this.$store.commit('addLog', {
+              type: "dfuUtil.message",
+              msg: "No DFU binary found, could be a missing package. System: "+process.platform
+            })
+
             self.headingmsg = "Error"
             self.dialog = false;
             self.message = "This platform is not supported or dfu-util cannot be found, if you are on linux please install it manually.";
@@ -246,7 +267,6 @@ export default {
               self.dialog = false;
               self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
               self.dialogm = true;
-
               self.winready = true;
 
               let element = document.getElementById("containerbox");
@@ -260,7 +280,6 @@ export default {
               self.dialog = false;
               self.message = self.message+(data).replace(/(?:\r\n|\r|\n)/g, '<br>');
               self.dialogm = true;
-
               self.winready = true;
 
               let element = document.getElementById("containerbox");
@@ -296,11 +315,12 @@ export default {
           self.dialog = false;
           self.message = err;
           self.dialogm = true;
-
-          return
+          return;
         }
-
-        console.log("Cache Cleaned")
+        this.$store.commit('addLog', {
+          type: "flashFw.message",
+          msg: "Firmware file cache deleted"
+        })
       })
 
       fs.writeFile(tmpPath, fwbin, function(err) {
@@ -312,7 +332,10 @@ export default {
               
             return;
           }
-          console.log("Starting DFU")
+          this.$store.commit('addLog', {
+            type: "flashFw.message",
+            msg: "Start DFU Util binary..."
+          })
 
           self.dialog = true;
           self.message = "Waiting for dfu-util...";
@@ -352,8 +375,15 @@ export default {
           var fwbrcopy = fwbr;
 
           if ((fwbrcopy.artifacts.length > 0) && !(typeof names === 'undefined')) {
-            console.log("Found Valid Branch");
-            console.log(fwbrcopy);
+            this.$store.commit('addLog', {
+              type: "updateBranches.message",
+              msg: "Found valid branch data"
+            })
+            this.$store.commit('addLog', {
+              type: "updateBranches.data",
+              msg: JSON.stringify(fwbrcopy)
+            })
+
             if(names.name.startsWith(fwbrcopy.artifacts[0].name)) {
               found = true;
             }
@@ -364,7 +394,15 @@ export default {
           if (typeof fwbrcp.artifacts[0] !== 'undefined') {
             self.fwbranches.push(fwbrcp.artifacts[0]);
           }
-          console.log(self.fwbranches);
+
+          this.$store.commit('addLog', {
+            type: "updateBranches.message",
+            msg: "Found multiple valid branches"
+          })
+          this.$store.commit('addLog', {
+            type: "updateBranches.data",
+            msg: JSON.stringify(self.fwbranches)
+          })
         }
       }));
     },
@@ -417,6 +455,11 @@ export default {
   },
 
   created() {
+    this.$store.commit('addLog', {
+      type: "created.message",
+      msg: "Instance created, loading info from GH API"
+    })
+
     if (this.$store.getters.getOptions.advancedFlash) {
       this.updateBranches()
       this.updateTags()

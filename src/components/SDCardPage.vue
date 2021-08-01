@@ -239,21 +239,35 @@ export default {
                   fs.rmdirSync(path.join(pathx, filename), { recursive: true });
                 }
               } catch (error) {
-                console.log(error);
+                this.$store.commit('addLog', {
+                  type: "removeDir.message.error",
+                  msg: error
+                });
               }
             } else {
               try {
                 fs.unlinkSync(path.join(pathx, filename))
               } catch (error) {
-                console.log(error);
+                this.$store.commit('addLog', {
+                  type: "removeDir.message.error",
+                  msg: error
+                })
               }
             }
           })
         } else {
-          console.log("No files found in the directory.")
+          this.$store.commit('addLog', {
+            type: "removeDir.message",
+            msg: "No files found in the directory."
+          })
         }
       } else {
         self.message += "Directory path not found."
+
+        this.$store.commit('addLog', {
+          type: "removeDir.message",
+          msg: "Directory path not found"
+        })
       }
     },
 
@@ -262,13 +276,29 @@ export default {
         var self = this;
 
         si.blockDevices().then(function(data){
-          console.log(data)
+          this.$store.commit('addLog', {
+            type: "updateConfig.message",
+            msg: "Scanned all block devices"
+          })
+          this.$store.commit('addLog', {
+            type: "updateConfig.data",
+            msg: JSON.stringify(data)
+          })
+
           self.disks = data.filter(function (el) {
             return el.removable && (el.mount != "")
           });
-        }).catch(error => console.error(error));
+        }).catch(function (err) {
+          this.$store.commit('addLog', {
+            type: "updateConfig.message.error",
+            msg: err
+          })
+        });
       } catch (e) {
-        console.error(e);
+        this.$store.commit('addLog', {
+          type: "updateConfig.message.error",
+          msg: e
+        })
       }
     },
 
@@ -291,19 +321,24 @@ export default {
         self.message = "Please select a remote target before writing.";
         self.dialogm = true;
         self.winready = false;
-        
         return;
       }
 
       if (fs.existsSync(self.diskSelect.mount)) {
-        console.log("Found disk");
-        console.log(self.diskSelect.mount);
+        this.$store.commit('addLog', {
+          type: "writeSD.message",
+          msg: "Found mounted disk at "+self.diskSelect.mount
+        })
       } else {
+        this.$store.commit('addLog', {
+          type: "writeSD.message",
+          msg: "Please select a valid disk, none found. (msg shown)"
+        })
+
         self.headingmsg = "Error"
         self.message = "Please select a valid disk, and ensure your transmitter is not in DFU mode.";
         self.dialogm = true;
         self.winready = false;
-
         return;
       }
 
@@ -329,7 +364,6 @@ export default {
       self.message += "Filtering releases...<br>";
 
       var asseturl = sdreleases.filter(obj => {
-        console.log(obj);
         return obj.tag_name == "latest"
       })[0].assets.filter(obj => {
         return obj.name == self.radioSelect.target;
@@ -374,7 +408,11 @@ export default {
         finishedvp += 1;
 
         if (finishedvp == (array.length)) {
-          console.log("Finished loading");
+          this.$store.commit('addLog', {
+            type: "displayResults.message",
+            msg: "Finished adding all packages, disk may be removed!"
+          })
+
           self.winready = false;
           self.message += `<br><b>Finished adding all packages, You may remove the disk now!</b><br>`;
           self.scrollDialog();

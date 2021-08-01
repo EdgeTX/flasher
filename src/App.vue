@@ -12,7 +12,7 @@
               <v-icon>mdi-help-box</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>About</v-list-item-title>
+              <v-list-item-title>Welcome</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -66,7 +66,7 @@
       </v-main>
   
       <v-footer app>
-        <span>&copy; {{ new Date().getFullYear() }} Ari Stehney, EdgeTX Team</span>
+        <span>&copy; {{ new Date().getFullYear() }} Ari Stehney, EdgeTX Team </span>
       </v-footer>
     </v-app>
 </template>
