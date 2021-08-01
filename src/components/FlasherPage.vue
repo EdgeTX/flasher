@@ -259,7 +259,21 @@ export default {
 
         if (platformstatus != "") {
             self.winready = true;
-            var dfucmd = require('child_process').execFile(platformstatus, dfuargs); 
+
+            const controller = new AbortController();
+            const { signal } = controller;
+
+            var dfucmd = require('child_process').execFile(platformstatus, dfuargs, { signal }, (error) => {
+              tmplog.addLog({
+                type: "dfuUtil.message",
+                msg: "Error while running DFU Executable, "+error
+              })
+
+              self.headingmsg = "Error"
+              self.dialog = false;
+              self.message = "Error while running DFU Executable, "+error;
+              self.dialogm = true;
+            }); 
 
             dfucmd.stdout.on('data', (data) => {
               var ign = ignoreMsgs.filter(function (item) {
@@ -320,6 +334,12 @@ export default {
           self.dialog = false;
           self.message = err;
           self.dialogm = true;
+
+          tmplog.addLog({
+            type: "flashFw.message",
+            msg: "Error in deleting firmware file"
+          })
+
           return;
         }
         tmplog.addLog({
@@ -334,6 +354,11 @@ export default {
             self.dialog = false;
             self.message = err;
             self.dialogm = true;
+
+            tmplog.addLog({
+              type: "flashFw.message",
+              msg: "Error in writing new firmware file"
+            })
               
             return;
           }

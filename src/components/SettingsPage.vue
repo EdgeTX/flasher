@@ -50,7 +50,9 @@
               v-model="logText"
               readonly
               style="font-weight: bold;"
+              no-resize
             ></v-textarea>
+
             <v-btn
               class="mt-4"
               color="primary"
@@ -59,7 +61,6 @@
               large
               @click="clearLog"
             >Clear Log</v-btn>
-
             <v-btn
               class="mt-4"
               color="primary"
