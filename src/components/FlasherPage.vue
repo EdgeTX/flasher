@@ -220,9 +220,10 @@ export default {
 
     dfuUtil(dfuargs) {
         var ignoreMsgs = [
-          "Invalid DFU suffix signature",
-          "A valid DFU suffix will be required in a future dfu-util release!!!"
+          "dfu-util: Warning: Invalid DFU suffix signature",
+          "dfu-util: A valid DFU suffix will be required in a future dfu-util release!!!",
         ];
+
         var self = this;
         var platformstatus = ""; 
         const dfuPath = path.dirname(remote.app.getAppPath());
@@ -232,13 +233,13 @@ export default {
               type: "dfuUtil.message",
               msg: "Found DFU Util for Windows, path set."
             })
-            platformstatus = path.join(dfuPath, "../src/support/dfu-util/win64/", "dfu-util.exe").replace(/(\s+)/g, '\\$1');
+            platformstatus = path.join(dfuPath, "../src/support/dfu-util/win64/", "dfu-util.exe");
         } else if (process.platform == "darwin" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/darwin/")).isDirectory()) { // working method
             tmplog.addLog({
               type: "dfuUtil.message",
               msg: "Found DFU Util for MacOS, path set."
             })
-            platformstatus = path.join(dfuPath, "../src/support/dfu-util/darwin/", "dfu-util").replace(/(\s+)/g, '\\$1');
+            platformstatus = path.join(dfuPath, "../src/support/dfu-util/darwin/", "dfu-util");
         } else if (process.platform == "linux" && commandExistsSync("dfu-util")) { // working method
             tmplog.addLog({
               type: "dfuUtil.message",
@@ -260,27 +261,13 @@ export default {
         if (platformstatus != "") {
             self.winready = true;
 
-            const controller = new AbortController();
-            const { signal } = controller;
-
-            var dfucmd = require('child_process').execFile(platformstatus, dfuargs, { signal }, (error) => {
-              tmplog.addLog({
-                type: "dfuUtil.message",
-                msg: "Error while running DFU Executable, "+error
-              })
-
-              self.headingmsg = "Error"
-              self.dialog = false;
-              self.message = "Error while running DFU Executable, "+error;
-              self.dialogm = true;
-            }); 
+            var dfucmd = require('child_process').execFile(platformstatus, dfuargs); 
 
             dfucmd.stdout.on('data', (data) => {
               var ign = ignoreMsgs.filter(function (item) {
-                return data.lower().includes(item.lower());
+                return data.toLowerCase().includes(item.toLowerCase());
               });
               if (ign.length > 0) data="\n";
-
 
               self.headingmsg = "Flashing..."
               self.dialog = false;
@@ -293,7 +280,10 @@ export default {
             });
 
             dfucmd.stderr.on('data', (data) => {
-              if (ignoreMsgs.includes(data)) return; 
+              var ign = ignoreMsgs.filter(function (item) {
+                return data.toLowerCase().includes(item.toLowerCase());
+              });
+              if (ign.length > 0) data="\n";
 
               self.headingmsg = "Flashing..."
               self.dialog = false;
@@ -368,7 +358,7 @@ export default {
           })
 
           self.dialog = true;
-          self.message = "Waiting for dfu-util...";
+          self.message = "Waiting for dfu-util...<br><br>";
           self.dfuUtil(["-a", "0", "--dfuse-address", "0x08000000", "--device", "0483:df11", "-D", tmpPath]);
       }); 
     },
