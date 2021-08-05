@@ -222,6 +222,9 @@ export default {
         var ignoreMsgs = [
           "dfu-util: Warning: Invalid DFU suffix signature",
           "dfu-util: A valid DFU suffix will be required in a future dfu-util release!!!",
+          "Warning: Invalid DFU suffix signature",
+          "Invalid DFU suffix signature",
+          "A valid DFU suffix will be required in a future dfu-util release!!!",
         ];
 
         var self = this;
