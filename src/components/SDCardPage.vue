@@ -380,46 +380,55 @@ export default {
       zip.extractAllTo(sddir, /*overwrite*/ true);
 
       self.scrollDialog();
+      
+      if (this.voiceSelect.length > 0) {
+        self.message += "Fetching sound pack index...<br>";
+        var voicereleases = await fwbranch.listReleases(fwbranch.voiceRepo);
 
-      self.message += "Fetching sound pack index...<br>";
-      var voicereleases = await fwbranch.listReleases(fwbranch.voiceRepo);
-
-      self.message += "Filtering sound pack releases...<br>";
-      var voiceurls = voicereleases.filter(obj => {
-        return obj.tag_name == "latest"
-      })[0].assets.filter(obj => {
-        return self.voiceSelect.some(v => obj.name.includes(v.toLowerCase()))
-      });
-
-      self.message += "Downloading and decompressing all sound packs...<br><br>";
-
-      var finishedvp = 0;
-      voiceurls.forEach(async function(vurl, index, array){
-        self.scrollDialog();
-        self.message += `Downloading voicepack ${vurl.name}...<br>`;
-        const voicebody = await axios.get(vurl.browser_download_url, {
-            responseType: 'arraybuffer',
+        self.message += "Filtering sound pack releases...<br>";
+        var voiceurls = voicereleases.filter(obj => {
+          return obj.tag_name == "latest"
+        })[0].assets.filter(obj => {
+          return self.voiceSelect.some(v => obj.name.includes(v.toLowerCase()))
         });
 
-        var vzip = new AdmZip(Buffer.from(voicebody.data));
-        vzip.extractAllTo(sddir, /*overwrite*/ false);
+        self.message += "Downloading and decompressing all sound packs...<br><br>";
 
-        self.message += `Installed voicepack ${vurl.name}<br>`;
-
-        finishedvp += 1;
-
-        if (finishedvp == (array.length)) {
-          tmplog.addLog({
-            type: "displayResults.message",
-            msg: "Finished adding all packages, disk may be removed!"
-          })
-
-          self.winready = false;
-          self.message += `<br><b>Finished adding all packages, You may remove the disk now!</b><br>`;
+        var finishedvp = 0;
+        voiceurls.forEach(async function(vurl, index, array){
           self.scrollDialog();
-        }
-      });
+          self.message += `Downloading voicepack ${vurl.name}...<br>`;
+          const voicebody = await axios.get(vurl.browser_download_url, {
+              responseType: 'arraybuffer',
+          });
+
+          var vzip = new AdmZip(Buffer.from(voicebody.data));
+          vzip.extractAllTo(sddir, /*overwrite*/ false);
+
+          self.message += `Installed voicepack ${vurl.name}<br>`;
+
+          finishedvp += 1;
+
+          if (finishedvp == (array.length)) self.finishPage();
+        });
+
+      } else {
+        self.finishPage();
+      }
     },
+
+    finishPage () {
+      var self = this;
+
+      tmplog.addLog({
+        type: "displayResults.message",
+        msg: "Finished adding all packages, disk may be removed!"
+      })
+
+      self.winready = false;
+      self.message += `<br><b>Finished adding all packages, You may remove the disk now!</b><br>`;
+      self.scrollDialog();
+    }
   },
 
   created() {
