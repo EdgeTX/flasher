@@ -69,24 +69,40 @@
             readonly
           ></v-textarea>
 
-          <v-btn
-              color=""
-              block
-              elevation="2"
-              large
-              @click="flashFw"
-              :disabled="noPopulatedInfo"
-          >Flash Radio Firmware</v-btn>
+        <div style="height:20px"></div>
 
-          <v-btn
-              class="mt-4"
-              color="primary"
-              block
-              elevation="2"
-              large
-              @click="saveFw"
-              :disabled="noPopulatedInfo"
-          >Save to File</v-btn>
+          <div ref="app">
+            <v-btn
+                color=""
+                block
+                elevation="2"
+                large
+                @click="flashFw"
+                :disabled="noPopulatedInfo"
+            >Flash Radio Firmware</v-btn>
+
+            <td class="text-xs-right fill-width buttons-cell">
+                <v-btn
+                    class="mt-4 mr-2"
+                    color="primary"
+                    elevation="2"
+                    large
+                    @click="saveFw"
+                    :disabled="noPopulatedInfo"
+                    :width="274"
+                >Save to File</v-btn>
+
+                <v-btn
+                    class="mt-4"
+                    color="primary"
+                    elevation="2"
+                    large
+                    @click="flashLocalFw"
+                    :width="274"
+                >Flash Local File</v-btn>
+            </td>
+          </div>
+
         </div>
       </v-container>
 
@@ -144,7 +160,7 @@ const fwbranch = require("../support/fw-branch.js");
 const tmplog = require("../support/tmplog.js");
 const fs = require('fs')
 const path = require('path')
-const {remote} = require("electron")
+const {remote} = require("electron");
 
 export default {
   name: 'FlasherPage',
@@ -382,6 +398,68 @@ export default {
       element.click();
 
       self.dialog = false;
+    },
+
+    async flashLocalFw() {
+      var self = this;
+      self.dialog = true;
+      self.message = "Moving bin...";
+
+      var fwbin = fs.readFileSync(remote.dialog.showOpenDialogSync({
+        properties: ['openFile'],
+        filters: [
+          { name: 'Binary Files', extensions: ['bin'] },
+        ],
+        buttonLabel: "Flash to Radio"
+      })[0]);
+
+      self.dialog = false;
+
+      var tmpPath = path.join(remote.app.getPath('userData'), "flash.bin");
+
+      fs.unlink(tmpPath, (err) => {
+        if (err) {
+          self.headingmsg = "File Error"
+          self.dialog = false;
+          self.message = err;
+          self.dialogm = true;
+
+          tmplog.addLog({
+            type: "flashFw.message",
+            msg: "Error in deleting firmware file"
+          })
+
+          return;
+        }
+        tmplog.addLog({
+          type: "flashFw.message",
+          msg: "Firmware file cache deleted"
+        })
+      })
+
+      fs.writeFile(tmpPath, fwbin, function(err) {
+          if(err) {
+            self.headingmsg = "File Error"
+            self.dialog = false;
+            self.message = err;
+            self.dialogm = true;
+
+            tmplog.addLog({
+              type: "flashFw.message",
+              msg: "Error in writing new firmware file"
+            })
+              
+            return;
+          }
+          tmplog.addLog({
+            type: "flashFw.message",
+            msg: "Start DFU Util binary..."
+          })
+
+          self.dialog = true;
+          self.message = "Waiting for dfu-util...";
+          self.dfuUtil(["-a", "0", "--dfuse-address", "0x08000000", "--device", "0483:df11", "-D", tmpPath]);
+      });
     },
 
     async updateBranches() {

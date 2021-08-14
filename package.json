@@ -25,6 +25,7 @@
     "vuex-persistedstate": "*"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "@octokit/auth-app": "^3.4.0",
     "@octokit/core": "^3.4.0",
     "@vue/cli-plugin-babel": "~4.5.0",

@@ -2,7 +2,6 @@
 node_modules
 /dist
 
-
 # local env files
 .env.local
 .env.*.local
@@ -24,3 +23,7 @@ pnpm-debug.log*
 
 #Electron-builder output
 /dist_electron
+
+#Versioning Fix
+/support/dfu-util/git_branch
+/support/dfu-util/git_commit

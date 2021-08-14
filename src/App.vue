@@ -66,7 +66,7 @@
       </v-main>
   
       <v-footer app>
-        <span>&copy; {{ new Date().getFullYear() }} Ari Stehney, EdgeTX Team </span>
+        <span>&copy; {{ new Date().getFullYear() }} Ari Stehney, EdgeTX Team {{ getGitString() }}</span>
       </v-footer>
     </v-app>
 </template>
@@ -81,14 +81,41 @@
 </style>
 
 <script>
+const fs = require('fs');
+const path = require('path');
+const {remote} = require("electron");
+
 export default {
   name: 'EdgeTX-Flasher',
 
-  components: {
+  data: () => ({
+    gitbranch: "",
+    gitcommit: ""
+  }),
+
+  methods: {
+    getGitString() {
+      return (this.gitbranch == "" || this.gitcommit == "") ? "" : `(${this.gitbranch}-${this.gitcommit})`;
+    }
   },
 
-  data: () => ({
-    //
-  }),
+  created: function () {
+    var self = this;
+    var rfn = path.join(path.dirname(remote.app.getAppPath()), "../src/support/dfu-util/")
+
+    fs.readFile(path.join(rfn, "git_branch"), 'utf8' , (err, data) => {
+      if (err) {
+        return
+      }
+      self.gitbranch = data;
+    });
+
+    fs.readFile(path.join(rfn, "git_commit"), 'utf8' , (err, data) => {
+      if (err) {
+        return
+      }
+      self.gitcommit = data;
+    });
+  }
 };
 </script>
