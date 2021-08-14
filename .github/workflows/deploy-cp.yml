@@ -36,7 +36,6 @@ jobs:
 
     - name: Embed Git commit info
       run: |
-        echo ${GITHUB_REF#refs/heads/} > src/support/dfu-util/git_branch
         echo $(git rev-parse --short "${GITHUB_SHA}") > src/support/dfu-util/git_commit
     
     - run: npm install

@@ -89,26 +89,18 @@ export default {
   name: 'EdgeTX-Flasher',
 
   data: () => ({
-    gitbranch: "",
     gitcommit: ""
   }),
 
   methods: {
     getGitString() {
-      return (this.gitbranch == "" || this.gitcommit == "") ? "" : `(${this.gitbranch}-${this.gitcommit})`;
+      return (this.gitcommit == "") ? "" : `(${this.gitcommit})`;
     }
   },
 
   created: function () {
     var self = this;
     var rfn = path.join(path.dirname(remote.app.getAppPath()), "../src/support/dfu-util/")
-
-    fs.readFile(path.join(rfn, "git_branch"), 'utf8' , (err, data) => {
-      if (err) {
-        return
-      }
-      self.gitbranch = data;
-    });
 
     fs.readFile(path.join(rfn, "git_commit"), 'utf8' , (err, data) => {
       if (err) {
