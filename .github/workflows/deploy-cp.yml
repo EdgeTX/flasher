@@ -36,7 +36,7 @@ jobs:
 
     - name: Embed Git commit info
       run: |
-        echo ${GITHUB_SHA} | cut -c1-8 > src/support/dfu-util/git_commit
+        echo ${GITHUB_SHA} | cut -c1-7 > src/support/dfu-util/git_commit
     
     - run: npm install
     - run: npm run electron:build

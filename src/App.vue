@@ -94,7 +94,7 @@ export default {
 
   methods: {
     getGitString() {
-      return (this.gitcommit == "") ? "" : `(${this.gitcommit})`;
+      return (this.gitcommit == "") ? "" : this.gitcommit;
     }
   },
 
