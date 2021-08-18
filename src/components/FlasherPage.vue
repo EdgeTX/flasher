@@ -81,7 +81,6 @@
                 :disabled="noPopulatedInfo"
             >Flash Radio Firmware</v-btn>
 
-            <td class="text-xs-right fill-width buttons-cell">
                 <v-btn
                     class="mt-4 mr-2"
                     color="primary"
@@ -89,7 +88,7 @@
                     large
                     @click="saveFw"
                     :disabled="noPopulatedInfo"
-                    :width="274"
+                    :width="49+'%'"
                 >Save to File</v-btn>
 
                 <v-btn
@@ -98,9 +97,8 @@
                     elevation="2"
                     large
                     @click="flashLocalFw"
-                    :width="274"
+                    :width="49+'%'"
                 >Flash Local File</v-btn>
-            </td>
           </div>
 
         </div>
