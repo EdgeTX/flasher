@@ -59,7 +59,7 @@ async function downloadFwRelease(firmwareFile, bdurl) {
     var bufferFW;
 
     zipEntries.forEach((entry) => {
-        if (entry.entryName.startsWith(firmwareFile)) {
+        if (entry.entryName.startsWith(firmwareFile) || entry.entryName.startsWith("edgetx-firmware-nightly/"+firmwareFile)) {
             bufferFW = entry.getData()
         }
     });
@@ -109,7 +109,7 @@ async function downloadReleaseMetadata(bdurl) {
     console.log("Loading zip entries...");
 
     zipEntries.forEach((entry) => {
-        if (entry.entryName == "fw.json") {
+        if (entry.entryName == "fw.json" || entry.entryName == "edgetx-firmware-nightly/fw.json") {
             indexdata = JSON.parse(entry.getData().toString('utf8'));
         }
     });
