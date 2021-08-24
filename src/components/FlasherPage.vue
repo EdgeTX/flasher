@@ -521,6 +521,10 @@ export default {
         var ltimestamp = tags[0].created_at;
 
         tags.forEach(await (async function (item) {
+          if (item.tag_name.match(new RegExp(".*RC\\d+","i"))) {
+            return;
+          }
+
           ltimestamp = (new Date(ltimestamp.created_at) < new Date(item.created_at)) ? item : ltimestamp;
 
           self.fwversions.push({
