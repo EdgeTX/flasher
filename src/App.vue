@@ -66,7 +66,7 @@
       </v-main>
   
       <v-footer app>
-        <span>&copy; {{ new Date().getFullYear() }} Ari Stehney, EdgeTX Team {{ getGitString() }}</span>
+        <span>&copy; {{ new Date().getFullYear() }} Ari Stehney, EdgeTX Team - Version {{appVersion}}</span>
       </v-footer>
     </v-app>
 </template>
@@ -84,12 +84,14 @@
 const fs = require('fs');
 const path = require('path');
 const {remote} = require("electron");
+import {version} from '../package.json'
 
 export default {
   name: 'EdgeTX-Flasher',
 
   data: () => ({
-    gitcommit: ""
+    gitcommit: "",
+    appVersion:version
   }),
 
   methods: {
