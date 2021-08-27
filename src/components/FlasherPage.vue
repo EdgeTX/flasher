@@ -285,7 +285,7 @@ export default {
 
             self.headingmsg = "Error"
             self.dialog = false;
-            self.message = "This platform is not supported or dfu-util cannot be found, if you are on linux please install it manually.";
+            self.message = "This platform is not supported or dfu-util cannot be found, if you are on linux please install it manually.<br><br><a href=\"http://dfu-util.sourceforge.net/\">Check here for more instructions: http://dfu-util.sourceforge.net/</a>";
             self.dialogm = true;
         }
 
