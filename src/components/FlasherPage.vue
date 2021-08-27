@@ -95,7 +95,6 @@
                 :disabled="noPopulatedInfo"
             >Flash Radio Firmware</v-btn>
 
-            <td class="text-xs-right fill-width buttons-cell">
                 <v-btn
                     class="mt-4 mr-2"
                     color="primary"
@@ -103,7 +102,7 @@
                     large
                     @click="saveFw"
                     :disabled="noPopulatedInfo"
-                    :width="274"
+                    :width="49+'%'"
                 >Save to File</v-btn>
 
                 <v-btn
@@ -112,9 +111,8 @@
                     elevation="2"
                     large
                     @click="flashLocalFw"
-                    :width="274"
+                    :width="49+'%'"
                 >Flash Local File</v-btn>
-            </td>
           </div>
 
         </div>
@@ -540,6 +538,10 @@ export default {
         var ltimestamp = tags[0].created_at;
 
         tags.forEach(await (async function (item) {
+          if (item.tag_name.match(new RegExp(".*RC\\d+","i"))) {
+            return;
+          }
+
           ltimestamp = (new Date(ltimestamp.created_at) < new Date(item.created_at)) ? item : ltimestamp;
 
           self.fwversions.push({
