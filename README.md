@@ -1,3 +1,4 @@
+<a href="url"><img src="https://github.com/EdgeTX/edgetx.github.io/blob/master/images/edgetx-v2.png" align="center" height="150" width="150" ></a>
 # EdgeTX Flasher
 The new alternative to OpenTX Companion for updating radio firmware and optimizing backups. This is not finished yet, it is still in the prototype phase.
 
