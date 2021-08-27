@@ -7,7 +7,7 @@
             <v-switch
               v-model="advancedFlash"
               inset
-              label="Advanced Mode (List all available versions)"
+              label="Advanced Mode (Development & unstable versions available)"
               @change="updateProps()"
             ></v-switch>
           </v-sheet>

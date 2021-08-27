@@ -39,7 +39,7 @@
             </template>
           </v-select>
 
-          <v-sheet elevation="3" class="rounded-lg">
+          <!--<v-sheet elevation="3" class="rounded-lg">
             <v-tabs 
               class="rounded"
               next-icon="mdi-arrow-right-bold-box-outline"
@@ -56,9 +56,23 @@
                 {{ tr[0] }}
               </v-tab>
             </v-tabs>
-          </v-sheet>
+          </v-sheet>-->
 
-          <br>
+          <v-select
+            :items="targets"
+            v-model="currtr"
+            item-value="[1]"
+            label="Rado Target"
+            class="rounded"
+            solo
+          >
+            <template v-slot:item="{item}">
+              {{item[0]}}
+            </template>    
+            <template v-slot:selection="{item}">
+              {{item[0]}}
+            </template>
+          </v-select>
 
           <v-textarea
             elevation="3"
@@ -230,9 +244,9 @@ export default {
       }
     },
 
-    updateSw(swvalue) {
+    /*updateSw(swvalue) {
       this.currtr = swvalue[1];
-    },
+    },*/
 
     dfuUtil(dfuargs) {
         var ignoreMsgs = [
@@ -327,6 +341,9 @@ export default {
     },
 
     async flashFw() {
+      console.log("mtrs");
+      console.log(this.currtr);
+
       var self = this;
       self.dialog = true;
       self.message = "Downloading bin...";
