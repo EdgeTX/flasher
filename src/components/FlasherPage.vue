@@ -62,7 +62,7 @@
             :items="targets"
             v-model="currtr"
             item-value="[1]"
-            label="Rado Target"
+            label="Radio Target"
             class="rounded"
             solo
           >
