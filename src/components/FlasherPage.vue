@@ -9,7 +9,7 @@
             item-text="name"
             item-value="name"
             label="Firmware Branch"
-            class="rounded"
+            class="rounded mb-0 mt-0 pt-0 pb-0"
             solo
             @change="updateVersions"
           >
@@ -27,7 +27,7 @@
             item-text="created_at"
             return-object
             label="Firmware Version"
-            class="rounded"
+            class="rounded mb-0 mt-0 pt-0 pb-0"
             solo
             @change="updateContent"
           >
@@ -63,7 +63,7 @@
             v-model="currtr"
             item-value="[1]"
             label="Radio Target"
-            class="rounded"
+            class="rounded mb-0 mt-0 pt-0 pb-0"
             solo
           >
             <template v-slot:item="{item}">
@@ -82,6 +82,21 @@
             solo
             readonly
           ></v-textarea>
+
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>DFU & Debugging Options</v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <b>Please only use these options if you are having issues flashing or it was suggested from a similar issue.</b>
+              <br>
+              <v-checkbox
+                v-model="debugmode"
+                label="Force Unprotect before flashing"
+                value=":unprotect:force"
+              ></v-checkbox>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
 
         <div style="height:20px"></div>
 
@@ -188,6 +203,7 @@ export default {
         currfw: [],
         currbr: [],
         currtr: "",
+        debugmode: [],
         noPopulatedInfo: true,
 
         dialog: false,
@@ -274,9 +290,15 @@ export default {
         } else if (process.platform == "linux" && commandExistsSync("dfu-util")) { // working method
             tmplog.addLog({
               type: "dfuUtil.message",
-              msg: "Found DFU Util for Linux, system binary path set."
+              msg: "Found DFU Util for Linux package, system binary path set."
             })
             platformstatus = "dfu-util";
+        } else if (process.platform == "linux" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/linux-amd64/")).isDirectory()) { // working method
+            tmplog.addLog({
+              type: "dfuUtil.message",
+              msg: "Found DFU Util for Linux-amd64, path set."
+            })
+            platformstatus = path.join(dfuPath, "../src/support/dfu-util/linux-amd64/", "dfu-util");
         } else {
             tmplog.addLog({
               type: "dfuUtil.message",
@@ -391,10 +413,18 @@ export default {
             msg: "Start DFU Util binary..."
           })
 
+          var dfuOptions = ["-a", "0", "--dfuse-address", `0x08000000${self.debugmode.join("")}`, "--device", "0483:df11", "-D", tmpPath];
+
+          tmplog.addLog({
+            type: "flashFw.message",
+            msg: dfuOptions.join(" ")
+          })
+
           self.dialog = true;
-          self.message = "Waiting for dfu-util...<br><br>";
-          self.dfuUtil(["-a", "0", "--dfuse-address", "0x08000000", "--device", "0483:df11", "-D", tmpPath]);
-      }); 
+          self.message = `Waiting for dfu-util...<br><br>`;
+          
+          self.dfuUtil(dfuOptions);
+      });
     },
 
     async saveFw() {
