@@ -574,13 +574,17 @@ export default {
 
           ltimestamp = (new Date(ltimestamp.created_at) < new Date(item.created_at)) ? item : ltimestamp;
 
-          self.fwversions.push({
-            commitId: item.tag_name,
-            commitMsg: item.body,
-            id: item.tag_name,
-            created_at: item.created_at,
-            bdurl: item.assets[0].browser_download_url
-          });
+          for (var i = 0; i < item.assets.length; i++) {
+            if (item.assets[i].name.startsWith("edgetx-firmware")) {
+              self.fwversions.push({
+                commitId: item.tag_name,
+                commitMsg: item.body,
+                id: item.tag_name,
+                created_at: item.created_at,
+                bdurl: item.assets[i].browser_download_url
+              });
+            }
+          }
         }));
 
         self.currfw = ltimestamp;

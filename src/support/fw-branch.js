@@ -109,7 +109,8 @@ async function downloadReleaseMetadata(bdurl) {
     console.log("Loading zip entries...");
 
     zipEntries.forEach((entry) => {
-        if (entry.entryName == "fw.json" || entry.entryName == "edgetx-firmware-nightly/fw.json") {
+        console.log(entry.entryName)
+        if (entry.entryName == "fw.json" || entry.entryName.endsWith("fw.json")) {
             indexdata = JSON.parse(entry.getData().toString('utf8'));
         }
     });
