@@ -564,7 +564,10 @@ export default {
         // Sort by tags
         var tags = await fwbranch.indexTags(fwbranch.defaultRepo);
         self.fwversions = [];
+        self.targets = [];
+        self.changelog = "";
         self.noPopulatedInfo = true;
+
         var ltimestamp = tags[0].created_at;
 
         tags.forEach(await (async function (item) {
@@ -592,6 +595,8 @@ export default {
         // Sort by branches
         var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
         self.fwversions = [];
+        self.targets = [];
+        self.changelog = "";
         self.noPopulatedInfo = true;
 
         fws.forEach(await (async function (item) {
@@ -614,12 +619,8 @@ export default {
       msg: "Instance created, loading info from GH API"
     })
 
-    if (this.$store.getters.getOptions.advancedFlash) {
-      this.updateBranches()
-      this.updateTags()
-    } else {
-      this.updateTags()
-    }
+    this.updateBranches()
+    this.updateTags()
   }
 }
 </script>

@@ -16,7 +16,16 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item link to="/flash">
+          <v-list-item link to="/wizard">
+            <v-list-item-action>
+              <v-icon>mdi-wizard-hat</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Flash EdgeTX</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item v-if="showFlashAdvanced" link to="/flash">
             <v-list-item-action>
               <v-icon>mdi-code-array</v-icon>
             </v-list-item-action>
@@ -75,6 +84,7 @@
   body {
     overflow-x: hidden;
   }
+
   ::-webkit-scrollbar {
     display: none;
   }
@@ -85,11 +95,13 @@ const fs = require('fs');
 const path = require('path');
 const {remote} = require("electron");
 
+
 export default {
-  name: 'EdgeTX-Flasher',
+  name: 'DefaultFrame',
 
   data: () => ({
-    gitcommit: ""
+    gitcommit: "",
+    showFlashAdvanced: false,
   }),
 
   methods: {
@@ -108,6 +120,8 @@ export default {
       }
       self.gitcommit = data;
     });
+
+    this.showFlashAdvanced = this.$store.getters.getOptions.advancedFlash;
   }
 };
 </script>

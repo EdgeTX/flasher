@@ -5,6 +5,7 @@ import vuetify from './plugins/vuetify'
 import store from "./store";
 import App from './App.vue'
 import FlasherPage from './components/FlasherPage.vue'
+import FlashWizard from './components/FlashWizard.vue'
 import WelcomePage from './components/WelcomePage.vue'
 import SDCardPage from './components/SDCardPage.vue'
 import SettingsPage from './components/SettingsPage.vue'
@@ -15,6 +16,7 @@ const router = new VueRouter({
   routes: [
       { path: '/welcome',  component: WelcomePage },
       { path: '/flash',    component: FlasherPage },
+      { path: '/wizard',   component: FlashWizard },
       { path: '/sdcard',   component: SDCardPage },
       { path: '/config',   component: YAMLConfiguration },
       { path: '/settings', component: SettingsPage },

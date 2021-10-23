@@ -17,6 +17,7 @@
   "dependencies": {
     "adm-zip": "^0.5.5",
     "core-js": "^3.6.5",
+    "custom-electron-titlebar": "^3.2.7",
     "underscore": "^1.13.1",
     "vue": "^2.6.11",
     "vue-router": "^3.5.1",

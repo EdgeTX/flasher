@@ -8,7 +8,7 @@
               v-model="advancedFlash"
               inset
               label="Advanced Mode (Development & unstable versions available)"
-              @change="updateProps()"
+              @change="updateRSProps()"
             ></v-switch>
           </v-sheet>
         </v-sheet>
@@ -101,6 +101,11 @@ export default {
 
     copyClipboard() {
       clipboard.writeText(this.logText, 'selection')
+    },
+
+    updateRSProps() {
+      this.updateProps();
+      window.location.reload();
     },
 
     updateProps() {
