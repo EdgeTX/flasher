@@ -8,9 +8,11 @@ on:
     branches: [ master ]
 
 jobs:
-  publish:
-    name: Publish for ${{ matrix.os }}
+  build:
+    name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    outputs:
+      sha_short: ${{ steps.vars.outputs.sha_short }}
     strategy:
       matrix:
         include:
@@ -28,27 +30,56 @@ jobs:
             binary_ending: dmg
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 14.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 14.x
+      - name: Check out the repo
+        uses: actions/checkout@v2
 
-    - name: Embed Git commit info
-      run: |
-        echo ${GITHUB_SHA} | cut -c1-7 > src/support/dfu-util/git_commit
-    
-    - run: npm install
-    - run: npm run electron:build
-    - name: Organize Releases
-      run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-nightly.${{ matrix.binary_ending }}
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
 
-    - name: Upload binaries to release
-      if: github.event_name != 'pull_request'
-      uses: svenstaro/upload-release-action@v2
-      with:
-        overwrite: true
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: edgetx-flasher-nightly.${{ matrix.binary_ending }}
-        asset_name: ${{ matrix.asset_name }}
-        tag: latest
+      - name: Embed Git commit info
+        run: echo ${GITHUB_SHA} | cut -c1-7 > src/support/dfu-util/git_commit
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build installation package
+        run: npm run electron:build
+
+      - name: Get short hash
+        id: vars
+        shell: bash
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Rename and organise files
+        run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
+
+      - name: Upload ${{ matrix.binary_ending }}
+        uses: 'actions/upload-artifact@v2'
+        with:
+          name: flasher-latest
+          path: edgetx-flasher-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
+          retention-days: 15
+          if-no-files-found: error
+
+  upload:
+    name: Upload latest release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: flasher-latest
+          path: flasher-latest
+
+      - name: Upload binaries to release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          title: "Latest Build"
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          files: flasher-latest/edgetx-flasher-${{needs.build.outputs.sha_short}}.*
+          automatic_release_tag: 'latest'
+          prerelease: false
