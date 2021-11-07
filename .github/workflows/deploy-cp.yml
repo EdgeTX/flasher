@@ -11,20 +11,21 @@ jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    outputs:
-      sha_short: ${{ steps.vars.outputs.sha_short }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
+            os_name: linux
             artifact_name: edgetx-flasher-nightly.AppImage
             asset_name: edgetx-linux-amd64.AppImage
             binary_ending: AppImage
           - os: windows-latest
+            os_name: windows
             artifact_name: edgetx-flasher-nightly.exe
             asset_name: edgetx-windows-amd64.exe
             binary_ending: exe
           - os: macos-latest
+            os_name: macos
             artifact_name: edgetx-flasher-nightly.dmg
             asset_name: edgetx-macos-amd64.dmg
             binary_ending: dmg
@@ -53,13 +54,13 @@ jobs:
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Rename and organise files
-        run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
+        run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-${{ os_name }}-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
 
       - name: Upload ${{ matrix.binary_ending }}
         uses: 'actions/upload-artifact@v2'
         with:
           name: flasher-latest
-          path: edgetx-flasher-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
+          path: edgetx-flasher-${{ matrix.os_name }}-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
           retention-days: 15
           if-no-files-found: error
 
@@ -80,6 +81,6 @@ jobs:
         with:
           title: "Latest Build"
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          files: flasher-latest/edgetx-flasher-${{needs.build.outputs.sha_short}}.*
+          files: flasher-latest/edgetx-flasher-*.*
           automatic_release_tag: 'latest'
           prerelease: false
