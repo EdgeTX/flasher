@@ -72,13 +72,41 @@
           </v-sheet>
         </v-sheet>
 
+        <v-dialog
+          v-model="dialog"
+          hide-overlay
+          persistent
+          width="142"
+        >
+          <v-card
+            color="primary"
+            dark
+          >
+            <v-card-text class="pt-2">
+              Relaunching...
+              <br>
+              <br>
+              <v-progress-circular
+                :rotate="-90"
+                :size="92"
+                :width="10"
+                :value="value"
+                color="white"
+              >
+                {{ value / 20 }}
+              </v-progress-circular>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+
         <br>
       </v-container>
 </template>
 
 <script>
 const tmplog = require("../support/tmplog.js");
-const {clipboard} = require('electron')
+const {clipboard} = require('electron');
+const {app} = require('electron').remote;
 
 export default {
   name: 'SettingsPage',
@@ -88,7 +116,11 @@ export default {
         advancedFlash: this.$store.getters.getOptions.advancedFlash,
         themeSwitch: this.$store.getters.getOptions.themeSwitch,
         defaultDir: this.$store.getters.getOptions.defaultDir,
-        logText: tmplog.getFormattedLog()
+        logText: tmplog.getFormattedLog(),
+
+        dialog: false,
+        value: 100,
+        interval: {}
       }
   },
 
@@ -105,7 +137,15 @@ export default {
 
     updateRSProps() {
       this.updateProps();
-      window.location.reload();
+
+      this.dialog = true;
+      this.interval = setInterval(() => {
+        if (this.value == 0) {
+          app.relaunch();
+          app.exit();
+        }
+        this.value -= 20
+      }, 1000)
     },
 
     updateProps() {

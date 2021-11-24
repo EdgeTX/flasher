@@ -54,7 +54,7 @@ jobs:
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Rename and organise files
-        run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-${{ os_name }}-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
+        run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-${{ matrix.os_name }}-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
 
       - name: Upload ${{ matrix.binary_ending }}
         uses: 'actions/upload-artifact@v2'

@@ -1,6 +1,90 @@
 <template>
   <v-container>
-      <v-container>
+      <div 
+        v-show="(pageShow < 3)"
+        style="margin-left: 30px; margin-right: 30px; margin-top: 10px;"
+      >
+        <step-progress 
+          :steps="['Version', 'Target', 'Install']" 
+          :current-step="pageShow"
+          icon-class="fa fa-check"
+          :active-color="(this.$store.getters.getOptions.themeSwitch ? '#329EF4' : '#329EF4')"
+          line-thickness="8"
+          active-thickness="3"
+          passive-thickness="1"
+        ></step-progress>
+      </div>
+
+      <v-container v-show="(pageShow == 0)">
+        <br>
+        <p>Choose the software version you want to flash. It is recommended that you choose the latest version that is not a nightly build. </p>
+
+        <br>
+        <v-select
+            :items="fwversions"
+            v-model="currfw"
+            item-text="created_at"
+            return-object
+            label="Firmware Version"
+            class="rounded mb-0 mt-0 pt-0 pb-0"
+            solo
+          >
+            <template slot="selection" slot-scope="data">
+              {{ data.item.commitId }} ({{ data.item.created_at }})
+            </template>
+            <template slot="item" slot-scope="data">
+              {{ data.item.commitId }} ({{ data.item.created_at }})
+            </template>
+        </v-select>
+
+        <v-btn class="bottombtn" :disabled="fwversions.includes(currfw)==false" v-on:click="updateContent();pageShow+=1;" color="primary">Next</v-btn>
+      </v-container>
+
+      <v-container v-show="(pageShow == 1)">
+        <br>
+        <p>Choose which radio you are flashing from the dropdown below, and click flash firmware when you are ready. </p>
+
+        <v-select
+          :items="targets"
+          v-model="currtr"
+          item-value="[1]"
+          label="Radio Target"
+          class="rounded mb-0 mt-0 pt-0 pb-0"
+          solo
+        >
+          <template v-slot:item="{item}">
+            {{item[0]}}
+          </template>    
+          <template v-slot:selection="{item}">
+            {{item[0]}}
+          </template>
+        </v-select>
+
+        <v-textarea
+          elevation="3"
+          name="changelogbox"
+          label="Select a firmware version to get notes"
+          :value="changelog"
+          solo
+          readonly
+        ></v-textarea>
+
+        <v-btn class="bottombtn" :disabled="([targets].map(x => x.map(a => a[1])).flat(2)).includes(currtr) == false" v-on:click="pageShow+=1;flashFw()" color="red" >Flash Firmware</v-btn>
+      </v-container>
+
+      <v-container v-show="(pageShow == 2)">
+        <br>
+        <h2 style="text-align:center">Thank you for using EdgeTX!</h2>
+        <br>
+        <p>If you encounter any issues please contact us from one of the links below.</p>
+        <br>
+        <div style="text-align:center">
+          <a href="https://discord.gg/wF9wUKnZ6H" class="biglink">Discord</a>
+          <a href="https://www.facebook.com/groups/edgetx" class="biglink">Facebook</a>
+          <a href="https://github.com/EdgeTX/edgetx/discussions" class="biglink">Github Discussions</a>
+        </div>
+
+       <v-btn class="bottombtn" v-on:click="pageShow=0;" color="primary">Close</v-btn>
       </v-container>
 
       <v-dialog
@@ -51,6 +135,21 @@
   </v-container>
 </template>
 
+<style>
+.bottombtn {
+   position: absolute;
+   bottom: 25px;
+   left: 5%;
+   width: 90%;
+}
+
+.biglink {
+  text-align: center;
+  font-size: 16px;
+  padding: 15px;
+}
+</style>
+
 <script>
 var commandExistsSync = require('command-exists').sync;
 const fwbranch = require("../support/fw-branch.js");
@@ -64,6 +163,8 @@ export default {
   
   data () {
       return {
+        pageShow: 0,
+
         targets: [],
         fwbranches: [],
         fwversions: [],
@@ -291,89 +392,9 @@ export default {
           })
 
           self.dialog = true;
-          self.message = `Waiting for dfu-util...<br><br>`;
+          self.message = `Waiting for dfu-util...`;
           
           self.dfuUtil(dfuOptions);
-      });
-    },
-
-    async saveFw() {
-      var self = this;
-
-      self.dialog = true;
-      self.message = "Downloading bin...";
-
-      var fwbin = (self.currbr == "releases") ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
-
-      self.message = "Creating binary package...";
-      const element = document.createElement("a");
-      const file = new Blob([Uint8Array.from(fwbin).buffer], {type: "text/plain"});
-      element.href = URL.createObjectURL(file);
-      element.download = self.currtr + "edgetx-"+self.currfw.id+".bin";
-      element.click();
-
-      self.dialog = false;
-    },
-
-    async flashLocalFw() {
-      var self = this;
-      self.dialog = true;
-      self.message = "Moving bin...";
-
-      var fwbin = fs.readFileSync(remote.dialog.showOpenDialogSync({
-        properties: ['openFile'],
-        filters: [
-          { name: 'Binary Files', extensions: ['bin'] },
-        ],
-        buttonLabel: "Flash to Radio"
-      })[0]);
-
-      self.dialog = false;
-
-      var tmpPath = path.join(remote.app.getPath('userData'), "flash.bin");
-
-      fs.unlink(tmpPath, (err) => {
-        if (err) {
-          self.headingmsg = "File Error"
-          self.dialog = false;
-          self.message = err;
-          self.dialogm = true;
-
-          tmplog.addLog({
-            type: "flashFw.message",
-            msg: "Error in deleting firmware file"
-          })
-
-          return;
-        }
-        tmplog.addLog({
-          type: "flashFw.message",
-          msg: "Firmware file cache deleted"
-        })
-      })
-
-      fs.writeFile(tmpPath, fwbin, function(err) {
-          if(err) {
-            self.headingmsg = "File Error"
-            self.dialog = false;
-            self.message = err;
-            self.dialogm = true;
-
-            tmplog.addLog({
-              type: "flashFw.message",
-              msg: "Error in writing new firmware file"
-            })
-              
-            return;
-          }
-          tmplog.addLog({
-            type: "flashFw.message",
-            msg: "Start DFU Util binary..."
-          })
-
-          self.dialog = true;
-          self.message = "Waiting for dfu-util...";
-          self.dfuUtil(["-a", "0", "--dfuse-address", "0x08000000", "--device", "0483:df11", "-D", tmpPath]);
       });
     },
 
@@ -429,52 +450,36 @@ export default {
 
     async updateVersions() {
       var self = this;
+      
+      var tags = await fwbranch.indexTags(fwbranch.defaultRepo);
+      self.fwversions = [];
+      self.targets = [];
+      self.changelog = "";
+      self.noPopulatedInfo = true;
 
-      if (self.currbr == "releases"){
-        // Sort by tags
-        var tags = await fwbranch.indexTags(fwbranch.defaultRepo);
-        self.fwversions = [];
-        self.noPopulatedInfo = true;
-        var ltimestamp = tags[0].created_at;
+      var ltimestamp = tags[0].created_at;
 
-        tags.forEach(await (async function (item) {
-          if (item.tag_name.match(new RegExp(".*RC\\d+","i"))) {
-            return;
+      tags.forEach(await (async function (item) {
+        if (item.tag_name.match(new RegExp(".*RC\\d+","i"))) {
+          return;
+        }
+
+        ltimestamp = (new Date(ltimestamp.created_at) < new Date(item.created_at)) ? item : ltimestamp;
+
+        for (var i = 0; i < item.assets.length; i++) {
+          if (item.assets[i].name.startsWith("edgetx-firmware")) {
+            self.fwversions.push({
+              commitId: item.tag_name,
+              commitMsg: item.body,
+              id: item.tag_name,
+              created_at: item.created_at,
+              bdurl: item.assets[i].browser_download_url
+            });
           }
+        }
+      }));
 
-          ltimestamp = (new Date(ltimestamp.created_at) < new Date(item.created_at)) ? item : ltimestamp;
-
-          for (var i = 0; i < item.assets.length; i++) {
-            if (item.assets[i].name.startsWith("edgetx-firmware")) {
-              self.fwversions.push({
-                commitId: item.tag_name,
-                commitMsg: item.body,
-                id: item.tag_name,
-                created_at: item.created_at,
-                bdurl: item.assets[i].browser_download_url
-              });
-            }
-          }
-        }));
-
-        self.currfw = ltimestamp;
-      } else {
-        // Sort by branches
-        var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
-        self.fwversions = [];
-        self.noPopulatedInfo = true;
-
-        fws.forEach(await (async function (item) {
-          var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
-          if (fwbr.artifacts.length > 0) {
-            if (fwbr.artifacts[0].name == self.currbr) {
-              fwbr.artifacts[0].commitId = "#"+item.head_commit.id.slice(0, 7);
-              fwbr.artifacts[0].commitMsg = item.head_commit.message;
-              self.fwversions.push(fwbr.artifacts[0]);
-            }
-          }
-        }));
-      }
+      self.currfw = ltimestamp;
     },
   },
 
@@ -484,12 +489,10 @@ export default {
       msg: "Instance created, loading info from GH API"
     })
 
-    if (this.$store.getters.getOptions.advancedFlash) {
-      this.updateBranches()
-      this.updateTags()
-    } else {
-      this.updateTags()
-    }
+    this.updateTags()
+
+    this.currbr = "releases";
+    this.updateVersions();
   }
 }
 </script>

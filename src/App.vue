@@ -95,13 +95,13 @@ const fs = require('fs');
 const path = require('path');
 const {remote} = require("electron");
 
-
 export default {
   name: 'DefaultFrame',
 
   data: () => ({
     gitcommit: "",
     showFlashAdvanced: false,
+    drawer: true,
   }),
 
   methods: {

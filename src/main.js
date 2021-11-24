@@ -11,6 +11,9 @@ import SDCardPage from './components/SDCardPage.vue'
 import SettingsPage from './components/SettingsPage.vue'
 import YAMLConfiguration from './components/YAMLConfiguration.vue'
 
+import StepProgress from 'vue-step-progress';
+import 'vue-step-progress/dist/main.css';
+
 const router = new VueRouter({
   mode: 'history',
   routes: [
@@ -26,6 +29,7 @@ const router = new VueRouter({
 
 Vue.use(VueRouter);
 Vue.config.productionTip = false
+Vue.component('step-progress', StepProgress);
 
 new Vue({
   store,

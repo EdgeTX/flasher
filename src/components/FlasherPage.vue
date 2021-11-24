@@ -421,7 +421,7 @@ export default {
           })
 
           self.dialog = true;
-          self.message = `Waiting for dfu-util...<br><br>`;
+          self.message = `Waiting for dfu-util...`;
           
           self.dfuUtil(dfuOptions);
       });
@@ -620,7 +620,7 @@ export default {
     })
 
     this.updateBranches()
-    this.updateTags()
+    this.updateTags();
   }
 }
 </script>
