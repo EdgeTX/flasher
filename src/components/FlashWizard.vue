@@ -17,7 +17,7 @@
 
       <v-container v-show="(pageShow == 0)">
         <br>
-        <p>Choose the software version you want to flash. It is recommended that you choose the latest version that is not a nightly build. </p>
+        <p>Choose the software version you want to flash. We recommend that you choose the latest version.</p>
 
         <br>
         <v-select
@@ -69,7 +69,8 @@
           readonly
         ></v-textarea>
 
-        <v-btn class="bottombtn" :disabled="([targets].map(x => x.map(a => a[1])).flat(2)).includes(currtr) == false" v-on:click="pageShow+=1;flashFw()" color="red" >Flash Firmware</v-btn>
+        <v-btn class="bottombtnrh" :disabled="([targets].map(x => x.map(a => a[1])).flat(2)).includes(currtr) == false" v-on:click="pageShow+=1;saveFw();" color="primary">Save to File</v-btn>
+        <v-btn class="bottombtnlh" :disabled="([targets].map(x => x.map(a => a[1])).flat(2)).includes(currtr) == false" v-on:click="pageShow+=1;flashFw()" color="red" >Flash Firmware</v-btn>
       </v-container>
 
       <v-container v-show="(pageShow == 2)">
@@ -141,6 +142,20 @@
    bottom: 25px;
    left: 5%;
    width: 90%;
+}
+
+.bottombtnrh {
+   position: absolute;
+   bottom: 25px;
+   right: 4%;
+   width: 44%;
+}
+
+.bottombtnlh {
+   position: absolute;
+   bottom: 25px;
+   left: 4%;
+   width: 44%;
 }
 
 .biglink {
@@ -228,10 +243,6 @@ export default {
         });
       }
     },
-
-    /*updateSw(swvalue) {
-      this.currtr = swvalue[1];
-    },*/
 
     dfuUtil(dfuargs) {
         var ignoreMsgs = [
@@ -331,6 +342,24 @@ export default {
         }
     },
 
+    async saveFw() {
+      var self = this;
+
+      self.dialog = true;
+      self.message = "Downloading bin...";
+
+      var fwbin = (self.currbr == "releases") ? (await fwbranch.downloadFwRelease(self.currtr, self.currfw.bdurl)) : (await fwbranch.downloadArtifact(self.currtr, self.currfw.id, fwbranch.defaultRepo));
+
+      self.message = "Creating binary package...";
+      const element = document.createElement("a");
+      const file = new Blob([Uint8Array.from(fwbin).buffer], {type: "text/plain"});
+      element.href = URL.createObjectURL(file);
+      element.download = self.currtr + "edgetx-"+self.currfw.id+".bin";
+      element.click();
+
+      self.dialog = false;
+    },
+
     async flashFw() {
       console.log("mtrs");
       console.log(this.currtr);
@@ -398,52 +427,6 @@ export default {
       });
     },
 
-    async updateBranches() {
-      var self = this;
-      var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
-
-      fws.forEach(await (async function (item) {
-        var found = false;
-        var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
-
-        var fwbrcp = fwbr;
-
-        self.fwbranches.forEach(function (names) {
-          var fwbrcopy = fwbr;
-
-          if ((fwbrcopy.artifacts.length > 0) && !(typeof names === 'undefined')) {
-            tmplog.addLog({
-              type: "updateBranches.message",
-              msg: "Found valid branch data"
-            })
-            tmplog.addLog({
-              type: "updateBranches.data",
-              msg: JSON.stringify(fwbrcopy)
-            })
-
-            if(names.name.startsWith(fwbrcopy.artifacts[0].name)) {
-              found = true;
-            }
-          }
-        });
-
-        if (!found) {
-          if (typeof fwbrcp.artifacts[0] !== 'undefined') {
-            self.fwbranches.push(fwbrcp.artifacts[0]);
-          }
-
-          tmplog.addLog({
-            type: "updateBranches.message",
-            msg: "Found multiple valid branches"
-          })
-          tmplog.addLog({
-            type: "updateBranches.data",
-            msg: JSON.stringify(self.fwbranches)
-          })
-        }
-      }));
-    },
-
     async updateTags (){
       this.fwbranches.push({name: "releases"});
     },
@@ -457,13 +440,14 @@ export default {
       self.changelog = "";
       self.noPopulatedInfo = true;
 
-      var ltimestamp = tags[0].created_at;
+      var ltimestamp = 0;
 
       tags.forEach(await (async function (item) {
-        if (item.tag_name.match(new RegExp(".*RC\\d+","i"))) {
+        if (item.tag_name.match(new RegExp(".*RC\\d+","i")) || item.tag_name == "nightly") {
           return;
         }
 
+        ltimestamp = ltimestamp == 0 ? item : ltimestamp;
         ltimestamp = (new Date(ltimestamp.created_at) < new Date(item.created_at)) ? item : ltimestamp;
 
         for (var i = 0; i < item.assets.length; i++) {

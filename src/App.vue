@@ -21,7 +21,7 @@
               <v-icon>mdi-wizard-hat</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Flash EdgeTX</v-list-item-title>
+              <v-list-item-title>Install EdgeTX</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
@@ -30,7 +30,7 @@
               <v-icon>mdi-code-array</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title>Flash Firmware</v-list-item-title>
+              <v-list-item-title>Advanced Flash</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
 
