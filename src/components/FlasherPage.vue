@@ -512,10 +512,9 @@ export default {
       var fws = await fwbranch.indexArtifacts(fwbranch.defaultRepo);
 
       fws.forEach(await (async function (item) {
-        var found = false;
         var fwbr = JSON.parse(JSON.stringify(await fwbranch.branchArtifact(fwbranch.defaultRepo, item.artifacts_url)));
-
         var fwbrcp = fwbr;
+        var found = false;
 
         self.fwbranches.forEach(function (names) {
           var fwbrcopy = fwbr;

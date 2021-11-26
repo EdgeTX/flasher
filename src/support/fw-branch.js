@@ -38,10 +38,14 @@ async function downloadArtifact(firmwareFile, artifact, repoInfo) {
     var zipEntries = zip.getEntries();
 
     var bufferFW;
+    var existingMatch = "";
 
     zipEntries.forEach((entry) => {
-        if (entry.entryName.startsWith(firmwareFile)) {
-            bufferFW = entry.getData()
+        if (entry.entryName.startsWith(firmwareFile) || entry.entryName.startsWith("edgetx-firmware-nightly/"+firmwareFile)) {
+            if (existingMatch == "" || existingMatch.length > entry.entryName) {
+                bufferFW = entry.getData()
+                existingMatch = entry.entryName;
+            }
         }
     });
 
@@ -57,10 +61,14 @@ async function downloadFwRelease(firmwareFile, bdurl) {
     var zipEntries = zip.getEntries();
 
     var bufferFW;
+    var existingMatch = "";
 
     zipEntries.forEach((entry) => {
         if (entry.entryName.startsWith(firmwareFile) || entry.entryName.startsWith("edgetx-firmware-nightly/"+firmwareFile)) {
-            bufferFW = entry.getData()
+            if (existingMatch == "" || existingMatch.length > entry.entryName) {
+                bufferFW = entry.getData()
+                existingMatch = entry.entryName;
+            }
         }
     });
 
