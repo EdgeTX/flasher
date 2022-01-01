@@ -22,6 +22,12 @@ var voiceRepo = {
     authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
 }
 
+var luaScriptRepo = {
+    owner: 'EdgeTX',
+    repo: 'lua-scripts',
+    authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
+}
+
 async function downloadArtifact(firmwareFile, artifact, repoInfo) {
     const octokit = new Octokit({
         auth: repoInfo.authKey
@@ -189,3 +195,4 @@ exports.downloadReleaseMetadata = downloadReleaseMetadata;
 exports.defaultRepo = defaultRepo;
 exports.voiceRepo = voiceRepo;
 exports.sdCardRepo = sdCardRepo;
+exports.luaScriptRepo = luaScriptRepo;

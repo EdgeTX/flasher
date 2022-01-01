@@ -38,16 +38,88 @@
               <v-expansion-panel-content>
                 <p>Please select your preferred Voicepack languages, for more info check the <a target="_blank" href="https://github.com/EdgeTX/edgetx-sdcard-sounds/blob/main/README.md">Voices readme.</a></p>
 
-                <v-checkbox 
-                  v-for="n in voices" 
-                  multiple 
-                  :key="n"
-                  :value="n" 
-                  :label="n" 
-                  :hide-details="true"
-                  v-model="voiceSelect"
-                />
+                <v-virtual-scroll
+                  :items="voices"
+                  height="300"
+                  item-height="64"
+                >
+                  <template v-slot:default="{ item }">
+                    <v-list-item :key="item.filename" two-line>
+                      <v-list-item-action>
+                        <v-checkbox 
+                          multiple
+                          :key="item.filename"
+                          :value="item.filename"
+                          :hide-details="true"
+                          v-model="voiceSelect"
+                        />
+                      </v-list-item-action>
 
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{ item.name }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ item.description }}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+
+                    <v-divider></v-divider>
+                  </template>
+                </v-virtual-scroll>
+                <br>
+
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+
+            <v-expansion-panel>
+              <v-expansion-panel-header>Lua Scripts and Tools</v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <p>Please select any Lua Scripts or Tools that you need on your SD card.</p>
+
+                <v-virtual-scroll
+                  :items="scripts"
+                  height="300"
+                  item-height="64"
+                >
+                  <template v-slot:default="{ item }">
+                    <v-list-item :key="item.filename" two-line>
+                      <v-list-item-action>
+                        <v-checkbox 
+                          multiple
+                          :key="item.filename"
+                          :value="item"
+                          :hide-details="true"
+                          v-model="scriptSelect"
+                        />
+                      </v-list-item-action>
+
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{ item.name }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ item.description }}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>       
+
+                      <v-list-item-action>
+                        <a
+                          :href="item.infourl"
+                          target="_blank"
+                          style="text-decoration: none"
+                        >
+                          <v-icon small>
+                            mdi-information
+                          </v-icon>
+                        </a>
+                      </v-list-item-action>
+                    </v-list-item>
+
+                    <v-divider></v-divider>
+                  </template>
+                </v-virtual-scroll>
                 <br>
 
               </v-expansion-panel-content>
@@ -106,6 +178,8 @@
             @click="writeSD()"
           >Write to SD Card</v-btn>
         </v-sheet>
+
+        <br>
     </v-container>
 
     <v-dialog
@@ -189,7 +263,7 @@ export default {
   
   data () {
       return {
-        panel: [0, 1, 2],
+        panel: [0, 1, 2, 3],
         readonly: false,
 
         dialogm: false,
@@ -216,12 +290,17 @@ export default {
           {name: "Radiomaster TX12", target: "taranis-x7.zip"},
           {name: "Radiomaster TX16s", target: "horus.zip"},
         ],
-        voices: ["CZ", "DE", "EN", "ES", "FR", "IT", "PT", "RU"],
+
+        voices: [],
+        voiceSelect: [],
+        radioSelect: {},
+
+        scripts: [],
+        scriptSelect: [],
+
         disks: ["None"],
         erasemode: false,
-        diskSelect: {mount: ""},
-        radioSelect: {},
-        voiceSelect: ['EN']
+        diskSelect: {mount: ""}
       }
   },
 
@@ -276,6 +355,12 @@ export default {
       try {
         var self = this;
 
+        self.voices = (await axios.get("https://github.com/EdgeTX/edgetx-sdcard-sounds/releases/download/latest/sounds.json", {responseType: 'json'})).data;
+        this.voiceSelect = self.voices.filter(el => (el.default)).map(item => item['filename']);
+
+        self.scripts = (await axios.get("https://github.com/EdgeTX/lua-scripts/releases/download/latest/scripts.json", {responseType: 'json'})).data;
+        this.scriptSelect = self.scripts.filter(el => (el.default));
+ 
         si.blockDevices().then(function(data){
           tmplog.addLog({
             type: "updateConfig.message",
@@ -385,7 +470,10 @@ export default {
         self.message += "Fetching sound pack index...<br>";
         var voicereleases = await fwbranch.listReleases(fwbranch.voiceRepo);
 
+        /* Voicepack installation */
+
         self.message += "Filtering sound pack releases...<br>";
+        
         var voiceurls = voicereleases.filter(obj => {
           return obj.tag_name == "latest"
         })[0].assets.filter(obj => {
@@ -408,13 +496,47 @@ export default {
           self.message += `Installed voicepack ${vurl.name}<br>`;
 
           finishedvp += 1;
-
-          if (finishedvp == (array.length)) self.finishPage();
+          if (finishedvp == (array.length)) self.scriptInstall(sddir);
         });
 
       } else {
         self.finishPage();
       }
+    },
+
+    scriptInstall (sddir) {
+      var self = this;
+      self.message += "<br>Downloading and decompressing all Lua scripts...<br><br>";
+
+      var finishedsp = 0;
+      self.scriptSelect.forEach(async function(surl, index, array){
+        self.scrollDialog();
+        self.message += `Downloading Lua script ${surl.name}...<br>`;
+
+        try {
+          const scriptbody = await axios.get(surl.filename, {
+            responseType: 'arraybuffer',
+          });
+
+          if (surl.unpack_from.length > 0 && surl.unpack_from == "/") {
+            var vzip = new AdmZip(Buffer.from(scriptbody.data));
+            vzip.extractAllTo(path.join(sddir, surl.unpack_to), /*overwrite*/ false);
+          } else if (surl.unpack_from.length > 0) {
+            var vzip2 = new AdmZip(Buffer.from(scriptbody.data));
+            vzip2.extractEntryTo(surl.unpack_from, path.join(sddir, surl.unpack_to), true, false, "");
+          } else {
+            fs.writeFileSync(path.join(sddir, surl.unpack_to), Buffer.from(scriptbody.data));
+          }
+
+          self.message += `Installed Lua script ${surl.name}<br>`;
+        } catch (error) {
+          self.message += `Error installing Lua script ${surl.name}!! Skipping...<br>`;
+          console.error(error);
+        }
+
+        finishedsp += 1;
+        if (finishedsp == (array.length)) self.finishPage();
+      });
     },
 
     finishPage () {
