@@ -14,9 +14,9 @@ module.exports = {
         ],
         extraFiles: [
           {
-              "from": "src/support/dfu-util",
-              "to": "src/support/dfu-util",
-              "filter": ["**/*"]
+            "from": "src/support/",
+            "to": "src/support/",
+            "filter": ["**/*"]
           }
         ],
         appId: "com.edgetx.flasher",
