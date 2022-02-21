@@ -16,19 +16,15 @@ jobs:
         include:
           - os: ubuntu-latest
             os_name: linux
-            extargs: --linux AppImage
             binary_ending: AppImage
           - os: ubuntu-latest
             os_name: linux
-            extargs: --linux deb
             binary_ending: deb
           - os: windows-latest
             os_name: windows
-            extargs: --win --x64
             binary_ending: exe
           - os: macos-latest
             os_name: macos
-            extargs: --mac
             binary_ending: dmg
 
     steps:
@@ -47,7 +43,7 @@ jobs:
         run: npm install
 
       - name: Build installation package
-        run: npm run electron:build ${{ matrix.extargs }}
+        run: npm run electron:build
 
       - name: Get short hash
         id: vars
