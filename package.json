@@ -68,15 +68,5 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ],
-  "build": {
-    "appId": "com.edgetx.flasher",
-    "productName": "edgetx-flasher",
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
-    }
-  }
+  ]
 }

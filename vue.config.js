@@ -18,7 +18,15 @@ module.exports = {
               "to": "src/support/dfu-util",
               "filter": ["**/*"]
           }
-        ]
+        ],
+        appId: com.edgetx.flasher,
+        productName: "edgetx-flasher",
+        linux: {
+          target: [
+            "AppImage",
+            "deb"
+          ]
+        }
       }
 
     }
