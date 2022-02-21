@@ -22,6 +22,7 @@ module.exports = {
         appId: "com.edgetx.flasher",
         productName: "edgetx-flasher",
         linux: {
+          maintainer: "Ari Stehney",
           target: [
             "AppImage",
             "deb"
