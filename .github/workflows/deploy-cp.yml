@@ -16,18 +16,19 @@ jobs:
         include:
           - os: ubuntu-latest
             os_name: linux
-            artifact_name: edgetx-flasher-nightly.AppImage
-            asset_name: edgetx-linux-amd64.AppImage
+            extargs: --linux AppImage
             binary_ending: AppImage
+          - os: ubuntu-latest
+            os_name: linux
+            extargs: --linux deb
+            binary_ending: deb
           - os: windows-latest
             os_name: windows
-            artifact_name: edgetx-flasher-nightly.exe
-            asset_name: edgetx-windows-amd64.exe
+            extargs: --win --x64
             binary_ending: exe
           - os: macos-latest
             os_name: macos
-            artifact_name: edgetx-flasher-nightly.dmg
-            asset_name: edgetx-macos-amd64.dmg
+            extargs: --mac
             binary_ending: dmg
 
     steps:
@@ -46,7 +47,7 @@ jobs:
         run: npm install
 
       - name: Build installation package
-        run: npm run electron:build
+        run: npm run electron:build ${{ matrix.extargs }}
 
       - name: Get short hash
         id: vars
