@@ -80,7 +80,7 @@ jobs:
       - name: Upload binaries to release
         uses: marvinpinto/action-automatic-releases@latest
         with:
-          title: "Latest Build"
+          title: "Latest Master Build"
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: flasher-latest/edgetx-flasher-*.*
           automatic_release_tag: 'latest'
