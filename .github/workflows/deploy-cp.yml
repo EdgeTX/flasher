@@ -36,19 +36,23 @@ jobs:
         with:
           node-version: 14.x
 
-      - name: Embed Git commit info
-        run: echo ${GITHUB_SHA} | cut -c1-7 > src/support/git_commit
+      - name: Get short hash
+        id: vars
+        shell: bash
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Embed Git commit info 
+        uses: DamianReeves/write-file-action
+        with:
+          path: src/support/git_commit
+          contents: ${{ steps.vars.outputs.sha_short }}
+          write-mode: overwrite
 
       - name: Install dependencies
         run: npm install
 
       - name: Build installation package
         run: npm run electron:build
-
-      - name: Get short hash
-        id: vars
-        shell: bash
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Rename and organise files
         run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-${{ matrix.os_name }}-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
