@@ -19,7 +19,7 @@ module.exports = {
               "filter": ["**/*"]
           }
         ],
-        appId: com.edgetx.flasher,
+        appId: "com.edgetx.flasher",
         productName: "edgetx-flasher",
         linux: {
           target: [
