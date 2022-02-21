@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
@@ -27,7 +27,11 @@ async function createWindow() {
   })
 
   win.setMenu(null);
-  win.setAutoHideMenuBar(true)
+  win.setAutoHideMenuBar(true);
+
+  globalShortcut.register('Alt+CommandOrControl+I', () => {
+    win.webContents.openDevTools()
+  })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
