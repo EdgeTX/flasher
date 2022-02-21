@@ -2,6 +2,7 @@
   "name": "edgetx-flasher",
   "version": "0.1.0",
   "author": "Ari Stehney",
+  "email" : "aristehney@mail.astehneylabs.com",
   "description": "The new flasher for EdgeTX, the cutting edge fork of OpenTX.",
   "private": true,
   "scripts": {
