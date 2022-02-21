@@ -112,7 +112,7 @@ export default {
 
   created: function () {
     var self = this;
-    var rfn = path.join(path.dirname(remote.app.getAppPath()), "../src/support/dfu-util/")
+    var rfn = path.join(path.dirname(remote.app.getAppPath()), "../src/support/")
     
     console.log("Version tag path: "+rfn);
     fs.readFile(path.join(rfn, "git_commit"), 'utf8' , (err, data) => {
