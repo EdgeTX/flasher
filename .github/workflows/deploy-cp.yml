@@ -41,8 +41,8 @@ jobs:
         shell: bash
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Embed Git commit info 
-        uses: DamianReeves/write-file-action
+      - name: Write file - Git commit tag
+        uses: DamianReeves/write-file-action@v1.0
         with:
           path: src/support/git_commit
           contents: ${{ steps.vars.outputs.sha_short }}
