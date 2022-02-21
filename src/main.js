@@ -44,4 +44,9 @@ new Vue({
   created () {
     this.$vuetify.theme.dark = store.getters.getOptions.themeSwitch;
   },
+
+  mounted () {
+    this.$vuetify.theme.themes.light = store.getters.getOptions.selTheme.colors;
+    this.$vuetify.theme.themes.dark = store.getters.getOptions.selTheme.colors;
+  }
 }).$mount('#app')

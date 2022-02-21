@@ -32,9 +32,28 @@
         <v-sheet class="pt-1 pl-1 rounded">
           <p class="h6 font-weight-bold pt-1 pl-2">App Options</p>
           <v-sheet class="pl-5">
+            <v-select
+              :items="themes"
+              v-model="selTheme"
+              label="Color Theme"
+              class="rounded"
+              item-text="name"
+              return-object
+              solo
+              @change="updateTheme()"
+            >
+              <template slot="selection" slot-scope="data">
+                {{ data.item.name }}
+              </template>
+              <template slot="item" slot-scope="data">
+                {{ data.item.name }}
+              </template>
+            </v-select>
+
             <v-switch
               v-model="themeSwitch"
               inset
+              
               label="Dark Mode"
               @change="updateTheme()"
             ></v-switch>
@@ -116,7 +135,63 @@ export default {
         advancedFlash: this.$store.getters.getOptions.advancedFlash,
         themeSwitch: this.$store.getters.getOptions.themeSwitch,
         defaultDir: this.$store.getters.getOptions.defaultDir,
+        selTheme: this.$store.getters.getOptions.selTheme,
         logText: tmplog.getFormattedLog(),
+
+        themes: [
+          {
+              name: "Defaults",
+              colors: {
+                  primary: '#1976D2',
+                  secondary: '#424242',
+                  accent: '#82B1FF',
+                  error: '#FF5252',
+                  info: '#2196F3',
+                  success: '#4CAF50',
+                  warning: '#FFC107',
+              }
+          },
+          {
+              name: "Swamp Green",
+              colors: {
+                  primary: '#138a36',
+                  secondary: '#34403a',
+                  accent: '#18ff6d',
+              }
+          },
+          {
+              name: "Hibiscus",
+              colors: {
+                  primary: '#622B5F',
+                  secondary: '#3A3E3B',
+                  accent: '#9E829C',
+              }
+          },
+          {
+              name: "Olive",
+              colors: {
+                  primary: '#98B06F',
+                  secondary: '#726E60',
+                  accent: '#DBFF76',
+              }
+          },
+          {
+              name: "Burgandy",
+              colors: {
+                  primary: '#721121',
+                  secondary: '#A5402D',
+                  accent: '#F15156',
+              }
+          },
+          {
+              name: "Gravel",
+              colors: {
+                  primary: '#9CAEA9',
+                  secondary: '#6F6866',
+                  accent: '#CCDAD1',
+              }
+          }
+        ],
 
         dialog: false,
         value: 100,
@@ -127,7 +202,9 @@ export default {
   methods: {
     updateTheme() {
       this.$vuetify.theme.dark = this.themeSwitch;
-      //this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+      this.$vuetify.theme.themes.light = this.selTheme.colors;
+      this.$vuetify.theme.themes.dark = this.selTheme.colors;
+
       this.updateProps()
     },
 
@@ -152,7 +229,8 @@ export default {
       this.$store.commit('update', {
         advancedFlash: this.advancedFlash,
         themeSwitch: this.themeSwitch,
-        defaultDir: this.defaultDir
+        defaultDir: this.defaultDir,
+        selTheme: this.selTheme
       })
     },
 
