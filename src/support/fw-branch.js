@@ -13,19 +13,19 @@ var defaultRepo = {
 var sdCardRepo = {
     owner: 'EdgeTX',
     repo: 'edgetx-sdcard',
-    authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
+    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64')
 }
 
 var voiceRepo = {
     owner: 'EdgeTX',
     repo: 'edgetx-sdcard-sounds',
-    authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
+    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64')
 }
 
 var luaScriptRepo = {
     owner: 'EdgeTX',
     repo: 'lua-scripts',
-    authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
+    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64')
 }
 
 async function downloadArtifact(firmwareFile, artifact, repoInfo) {

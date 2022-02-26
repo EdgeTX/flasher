@@ -9,9 +9,9 @@
           :current-step="pageShow"
           icon-class="fa fa-check"
           :active-color="this.$vuetify.theme.themes.light['primary']"
-          line-thickness="8"
-          active-thickness="3"
-          passive-thickness="1"
+          line-thickness=8
+          active-thickness=3
+          passive-thickness=1
         ></step-progress>
       </div>
 

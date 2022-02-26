@@ -64,8 +64,6 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  app.commandLine.appendSwitch('remote-debugging-port', '8315');
-  app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1');
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {
