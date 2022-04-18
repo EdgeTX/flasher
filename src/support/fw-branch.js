@@ -7,25 +7,25 @@ const axios = require('axios');
 var defaultRepo = {
     owner: 'EdgeTX',
     repo: 'EdgeTX',
-    authKey: atob("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==")
+    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64').toString('utf8')
 }
 
 var sdCardRepo = {
     owner: 'EdgeTX',
     repo: 'edgetx-sdcard',
-    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64')
+    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64').toString('utf8')
 }
 
 var voiceRepo = {
     owner: 'EdgeTX',
     repo: 'edgetx-sdcard-sounds',
-    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64')
+    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64').toString('utf8')
 }
 
 var luaScriptRepo = {
     owner: 'EdgeTX',
     repo: 'lua-scripts',
-    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64')
+    authKey: Buffer.from("Z2hwX2JQQUo3TWhybUMxcmVPbjdQN0htRGg0aDBDVldsSzJPQTNYcQ==", 'base64').toString('utf8')
 }
 
 async function downloadArtifact(firmwareFile, artifact, repoInfo) {
