@@ -49,7 +49,7 @@
                         <v-checkbox 
                           multiple
                           :key="item.filename"
-                          :value="item.filename"
+                          :value="item"
                           :hide-details="true"
                           v-model="voiceSelect"
                         />
