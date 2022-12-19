@@ -17,6 +17,9 @@ Check the releases section for prebuilt rolling-release binaries for the flasher
 - YAML Configuration Interface
 - SD Card and DFU Backup
 
+## Development
+Please note that development of Flasher requires `node@16`. This can be installed with a version manager such as [fnm](https://github.com/Schniz/fnm).
+
 ### NPM Tasks
 
 #### Setup project
