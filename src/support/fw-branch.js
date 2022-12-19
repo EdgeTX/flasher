@@ -69,8 +69,6 @@ async function downloadFwRelease(firmwareFile, bdurl) {
     var bufferFW;
     var existingMatch = "";
 
-
-
     zipEntries.forEach((entry) => {
         if (entry.entryName.startsWith(firmwareFile) || entry.entryName.startsWith("edgetx-firmware-nightly/"+firmwareFile)) {
             if (existingMatch == "" || existingMatch.length > entry.entryName.length) {
