@@ -49,7 +49,7 @@
                         <v-checkbox 
                           multiple
                           :key="item.filename"
-                          :value="item.filename"
+                          :value="item"
                           :hide-details="true"
                           v-model="voiceSelect"
                         />
@@ -479,7 +479,7 @@ export default {
         var voiceurls = voicereleases.filter(obj => {
           return obj.tag_name == "latest"
         })[0].assets.filter(obj => {
-          return self.voiceSelect.some(v => obj.name.includes(v.toLowerCase()))
+          return self.voiceSelect.some(v => obj.name.includes(v.directory.toLowerCase()))
         });
 
         self.message += "Downloading and decompressing all sound packs...<br><br>";
