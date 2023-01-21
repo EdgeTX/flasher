@@ -28,6 +28,10 @@ jobs:
             binary_ending: dmg
 
     steps:
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+          
       - name: Check out the repo
         uses: actions/checkout@v2
 
