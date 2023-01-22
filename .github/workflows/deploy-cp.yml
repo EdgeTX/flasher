@@ -43,6 +43,10 @@ jobs:
       - name: npm 8
         run: npm i -g npm@8 --registry=https://registry.npmjs.org
 
+      - name: Install dmg-license (macOS only)
+        if: runner.os == 'macOS'
+        run: npm i dmg-license
+
       - name: Get short hash
         id: vars
         shell: bash
