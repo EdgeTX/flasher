@@ -40,9 +40,6 @@ jobs:
         with:
           node-version: 16.x
 
-      - name: npm 8
-        run: npm i -g npm@8 --registry=https://registry.npmjs.org
-
       - name: Install dmg-license (macOS only)
         if: runner.os == 'macOS'
         run: npm i dmg-license
