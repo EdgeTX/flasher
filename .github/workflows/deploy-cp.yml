@@ -30,13 +30,13 @@ jobs:
     steps:
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10' 
+          python-version: '3.10'
           
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
 
@@ -50,7 +50,7 @@ jobs:
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Write file - Git commit tag
-        uses: DamianReeves/write-file-action@v1.0
+        uses: DamianReeves/write-file-action@v1.2
         with:
           path: src/support/git_commit
           contents: ${{ steps.vars.outputs.sha_short }}
@@ -66,7 +66,7 @@ jobs:
         run: mv dist_electron/*.${{ matrix.binary_ending }} edgetx-flasher-${{ matrix.os_name }}-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
 
       - name: Upload ${{ matrix.binary_ending }}
-        uses: 'actions/upload-artifact@v2'
+        uses: actions/upload-artifact@v3
         with:
           name: flasher-latest
           path: edgetx-flasher-${{ matrix.os_name }}-${{ steps.vars.outputs.sha_short }}.${{ matrix.binary_ending }}
@@ -80,7 +80,7 @@ jobs:
     if: github.event_name != 'pull_request'
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: flasher-latest
           path: flasher-latest
