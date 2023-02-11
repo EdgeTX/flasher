@@ -93,7 +93,7 @@
 <script>
 const fs = require('fs');
 const path = require('path');
-const {remote} = require("electron");
+const remote = require("@electron/remote");
 
 export default {
   name: 'DefaultFrame',
@@ -112,7 +112,8 @@ export default {
 
   created: function () {
     var self = this;
-    var rfn = path.join(path.dirname(remote.app.getAppPath()), "../src/support/")
+    var root = process.env.NODE_ENV === 'development' ? '.' : '..';
+    var rfn = path.join(path.dirname(remote.app.getAppPath()), `${root}/src/support/`)
     
     console.log("Version tag path: "+rfn);
     fs.readFile(path.join(rfn, "git_commit"), 'utf8' , (err, data) => {

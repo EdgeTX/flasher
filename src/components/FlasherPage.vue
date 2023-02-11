@@ -187,7 +187,7 @@ const fwbranch = require("../support/fw-branch.js");
 const tmplog = require("../support/tmplog.js");
 const fs = require('fs')
 const path = require('path')
-const {remote} = require("electron");
+const remote = require("@electron/remote");
 
 export default {
   name: 'FlasherPage',
@@ -273,9 +273,10 @@ export default {
 
         var self = this;
         var platformstatus = ""; 
+        var root = process.env.NODE_ENV === 'development' ? '.' : '..';
         const dfuPath = path.dirname(remote.app.getAppPath());
 
-        if (process.platform == "win32" && fs.statSync(path.join(dfuPath, "../src/support/dfu-util/win64/")).isDirectory()) {
+        if (process.platform == "win32" && fs.statSync(path.join(dfuPath, `${root}/src/support/dfu-util/win64/`)).isDirectory()) {
             tmplog.addLog({
               type: "dfuUtil.message",
               msg: "Found DFU Util for Windows, path set."

@@ -3,6 +3,9 @@
 import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import * as remote from "@electron/remote/main";
+
+remote.initialize();
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
  
@@ -22,9 +25,12 @@ async function createWindow() {
       enableRemoteModule: true,
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
+
+  remote.enable(win.webContents);
 
   win.setMenu(null);
   win.setAutoHideMenuBar(true);

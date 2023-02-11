@@ -125,7 +125,7 @@
 <script>
 const tmplog = require("../support/tmplog.js");
 const {clipboard} = require('electron');
-const {app} = require('electron').remote;
+const app = require('@electron/remote').app;
 
 export default {
   name: 'SettingsPage',
