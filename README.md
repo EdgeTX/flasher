@@ -1,3 +1,6 @@
+# Project depreciation
+As of April 2023, Flasher is being phased out in preference to other installation options. Please refer to the [EdgeTX Installation Guide](https://github.com/EdgeTX/edgetx.github.io/wiki/EdgeTX-Installation-Guide) for up-to-date installation instructions and guides.
+
 <a href="url"><img src="https://github.com/EdgeTX/edgetx.github.io/blob/master/images/edgetx-v2.png" align="center" height="150" width="150" ></a>
 # EdgeTX Flasher
 The new alternative to OpenTX Companion for updating radio firmware and optimizing backups.
